@@ -79,6 +79,7 @@ def make_initial_state(
     tone: str,
     budget: str,
     platforms: list[str],
+    publish_mode: str = "now",
     session_id: str | None = None,
 ) -> CampaignState:
     """Create a fresh CampaignState from user inputs."""
@@ -91,6 +92,7 @@ def make_initial_state(
         tone=tone,
         budget=budget,
         platforms=platforms,
+        publish_mode=publish_mode,
         messages=[],
         task_plan=[],
         orchestrator_notes="",

@@ -16,7 +16,28 @@ const TONES = ["Professional", "Bold", "Casual", "Inspirational", "Educational"]
 
 const PLATFORMS = [
   { id: "linkedin", label: "LinkedIn", icon: "💼" },
-  { id: "buffer", label: "Buffer", icon: "📅" },
+  { id: "twitter", label: "X / Twitter", icon: "𝕏" },
+];
+
+const PUBLISH_MODES = [
+  {
+    id: "now",
+    label: "Publish Now",
+    icon: "⚡",
+    desc: "All posts go live immediately",
+  },
+  {
+    id: "scheduled",
+    label: "Schedule",
+    icon: "🗓️",
+    desc: "Staggered over 3 days",
+  },
+  {
+    id: "both",
+    label: "Now + Schedule",
+    icon: "🚀",
+    desc: "First post live, rest scheduled",
+  },
 ];
 
 export default function NewCampaignPage() {
@@ -31,7 +52,8 @@ export default function NewCampaignPage() {
     target_audience: "",
     tone: "Professional",
     budget: "$500/week",
-    platforms: ["linkedin", "buffer"],
+    platforms: ["linkedin", "twitter"],
+    publish_mode: "now",
   });
 
   function togglePlatform(id: string) {
@@ -219,6 +241,50 @@ export default function NewCampaignPage() {
               ))}
             </div>
           </Field>
+        </div>
+
+        {/* Publish Mode */}
+        <div
+          className="rounded-2xl border p-5 space-y-4"
+          style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+        >
+          <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+            Publish Mode
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            {PUBLISH_MODES.map((m) => {
+              const active = form.publish_mode === m.id;
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, publish_mode: m.id }))}
+                  className="flex flex-col items-center gap-1.5 px-3 py-4 rounded-xl border text-center transition-all"
+                  style={
+                    active
+                      ? {
+                          background: "rgba(99,102,241,0.15)",
+                          borderColor: "#6366f1",
+                          color: "#a5b4fc",
+                        }
+                      : {
+                          background: "transparent",
+                          borderColor: "var(--border)",
+                          color: "var(--text-muted)",
+                        }
+                  }
+                >
+                  <span className="text-xl">{m.icon}</span>
+                  <span className="text-xs font-semibold" style={{ color: active ? "#a5b4fc" : "var(--text)" }}>
+                    {m.label}
+                  </span>
+                  <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+                    {m.desc}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {error && (

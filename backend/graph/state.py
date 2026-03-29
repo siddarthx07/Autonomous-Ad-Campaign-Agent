@@ -58,7 +58,8 @@ class CampaignState(TypedDict):
     target_audience: str        # free-text from user
     tone: str                   # e.g. "professional", "casual", "bold"
     budget: str                 # e.g. "$500/week"
-    platforms: list[str]        # ["linkedin", "buffer"]
+    platforms: list[str]        # ["linkedin", "twitter"]
+    publish_mode: str           # "now" | "scheduled" | "both"
 
     # ── Conversation history (persisted to SQLite) ────────────────
     messages: list[dict[str, str]]   # {"role": "user"|"assistant", "content": "..."}

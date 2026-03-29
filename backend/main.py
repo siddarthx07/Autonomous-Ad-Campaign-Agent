@@ -15,7 +15,7 @@ import json
 import os
 import uuid
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
@@ -67,8 +67,9 @@ class CampaignRequest(BaseModel):
     target_audience: str = Field(..., min_length=5, max_length=500)
     tone: str = Field(default="professional", description="e.g. professional, casual, bold")
     budget: str = Field(default="$500/week")
-    platforms: list[str] = Field(default=["linkedin", "buffer"])
-    session_id: str | None = Field(default=None)
+    platforms: list[str] = Field(default=["linkedin", "twitter"])
+    publish_mode: str = Field(default="now", description="now | scheduled | both")
+    session_id: Optional[str] = Field(default=None)
 
 
 class CampaignStartResponse(BaseModel):
@@ -157,6 +158,7 @@ async def _stream_graph_with_steps(session_id: str, request: CampaignRequest) ->
         tone=request.tone,
         budget=request.budget,
         platforms=request.platforms,
+        publish_mode=request.publish_mode,
         session_id=session_id,
     )
 
