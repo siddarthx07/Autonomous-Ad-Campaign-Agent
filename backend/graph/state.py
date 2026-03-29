@@ -1,0 +1,93 @@
+"""
+CampaignState — the single source of truth passed between every LangGraph node.
+Working Memory lives here: all in-flight data is stored and mutated on this dict.
+"""
+from __future__ import annotations
+
+from typing import Any, Optional
+from typing_extensions import TypedDict
+
+
+class AdVariant(TypedDict):
+    platform: str          # "linkedin_post" | "linkedin_ad" | "buffer"
+    headline: str
+    body: str
+    cta: str
+    image_prompt: Optional[str]
+
+
+class AudienceSegment(TypedDict):
+    segment_name: str
+    seniority: list[str]
+    industries: list[str]
+    geo: list[str]
+    interests: list[str]
+
+
+class CriticScore(TypedDict):
+    overall: float         # 0.0 – 1.0
+    engagement: float
+    brand_alignment: float
+    platform_compliance: float
+    feedback: str          # free-text suggestions
+
+
+class CampaignPlan(TypedDict):
+    objective: str
+    kpis: list[str]
+    timeline: str
+    platforms: list[str]
+    messaging_pillars: list[str]
+    budget_allocation: dict[str, str]
+
+
+class PublishResult(TypedDict):
+    linkedin_post_id: Optional[str]
+    linkedin_ad_id: Optional[str]
+    buffer_update_ids: list[str]
+    published_at: Optional[str]
+    errors: list[str]
+
+
+class CampaignState(TypedDict):
+    # ── User input ────────────────────────────────────────────────
+    session_id: str
+    product_name: str
+    product_description: str
+    campaign_goal: str          # e.g. "brand awareness", "lead generation"
+    target_audience: str        # free-text from user
+    tone: str                   # e.g. "professional", "casual", "bold"
+    budget: str                 # e.g. "$500/week"
+    platforms: list[str]        # ["linkedin", "buffer"]
+
+    # ── Conversation history (persisted to SQLite) ────────────────
+    messages: list[dict[str, str]]   # {"role": "user"|"assistant", "content": "..."}
+
+    # ── Orchestrator outputs ──────────────────────────────────────
+    task_plan: list[str]             # ordered steps decided by orchestrator
+    orchestrator_notes: str
+
+    # ── Memory context injected at runtime ───────────────────────
+    episodic_context: str            # similar past campaigns
+    semantic_context: str            # platform/ad knowledge
+    procedural_context: str          # SOPs loaded for current step
+    entities: dict[str, Any]         # extracted entities (brand, persona, etc.)
+
+    # ── Agent outputs (working memory slots) ─────────────────────
+    campaign_plan: Optional[CampaignPlan]
+    research_findings: str
+    ad_variants: list[AdVariant]
+    audience_segments: list[AudienceSegment]
+    critic_score: Optional[CriticScore]
+
+    # ── Control flow ──────────────────────────────────────────────
+    revision_count: int              # how many critic loops have run
+    max_revisions: int               # default 3
+
+    # ── Final output ──────────────────────────────────────────────
+    publish_result: Optional[PublishResult]
+    status: str                      # "running" | "published" | "failed"
+    error: Optional[str]
+
+    # ── SSE event log (streamed to frontend) ─────────────────────
+    events: list[dict[str, Any]]

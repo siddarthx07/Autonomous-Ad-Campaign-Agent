@@ -1,0 +1,28 @@
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-dotenv==1.0.1
+pydantic==2.10.3
+pydantic-settings==2.6.1
+
+# LangGraph / LangChain
+langgraph==0.2.56
+langchain==0.3.12
+langchain-openai==0.2.12
+langchain-community==0.3.12
+langchain-core==0.3.25
+
+# OpenAI
+openai==1.58.1
+
+# Memory / Vector store
+chromadb==0.5.23
+sentence-transformers==3.3.1
+
+# Tools
+tavily-python==0.5.0
+httpx==0.28.1
+aiohttp==3.11.10
+
+# Utilities
+python-multipart==0.0.18
+sse-starlette==2.1.3
