@@ -171,7 +171,7 @@ function MemoryContent({
 function WorkingMemView({ data }: { data: Record<string, unknown> }) {
   if (!data || Object.keys(data).length === 0) {
     return (
-      <EmptyState msg="Working memory is empty — run a campaign to populate it." />
+      <EmptyState msg="Working memory is cleared after each run — start a new campaign to see in-flight state." />
     );
   }
   return (

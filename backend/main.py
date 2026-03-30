@@ -304,9 +304,16 @@ async def get_memory(session_id: str):
 
     snapshot = memory_manager.get_snapshot(session_id)
 
-    # Inject working memory from live session state if available
+    # Inject working memory only while the campaign is actively running.
+    # Once finished (published/failed) the LangGraph state is no longer
+    # "in-flight" and should not be shown as working memory.
     live_state = _sessions.get(session_id)
-    if live_state and isinstance(live_state, dict):
+    is_active = (
+        live_state is not None
+        and isinstance(live_state, dict)
+        and live_state.get("status") not in ("published", "failed", "error")
+    )
+    if is_active:
         snapshot["working"] = {
             "task_plan": live_state.get("task_plan", []),
             "coordinator_notes": live_state.get("coordinator_notes", ""),

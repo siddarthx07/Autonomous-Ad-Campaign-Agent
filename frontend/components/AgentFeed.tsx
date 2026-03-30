@@ -10,16 +10,6 @@ interface AgentFeedProps {
   isRunning: boolean;
 }
 
-const TYPE_ICONS: Record<string, string> = {
-  analysis: "ANL",
-  strategy: "STR",
-  research: "RSH",
-  content: "CNT",
-  targeting: "TGT",
-  critique: "CRQ",
-  publish: "PUB",
-};
-
 const MEMORY_COLORS: Record<string, string> = {
   episodic: "#0ea5e9",
   semantic: "#0891b2",
@@ -120,7 +110,6 @@ export default function AgentFeed({ events, isRunning }: AgentFeedProps) {
 function EventCard({ event }: { event: AgentEvent }) {
   const color = AGENT_COLORS[event.agent] ?? "#6b7280";
   const agentIcon = AGENT_LABELS[event.agent] ?? "AGN";
-  const typeIcon = TYPE_ICONS[event.type] ?? "EVT";
 
   return (
     <div
@@ -133,12 +122,6 @@ function EventCard({ event }: { event: AgentEvent }) {
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span
-            className="text-[10px] flex-shrink-0 px-1.5 py-0.5 rounded border font-semibold font-mono"
-            style={{ color: color, borderColor: color + "40", background: color + "10" }}
-          >
-            {typeIcon}
-          </span>
           <div className="min-w-0">
             <div
               className="text-xs font-semibold"
