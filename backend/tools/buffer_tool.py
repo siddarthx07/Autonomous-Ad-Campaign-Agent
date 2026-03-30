@@ -91,7 +91,7 @@ def _post_to_channel(
             _BUFFER_GRAPHQL,
             headers=_headers(),
             json={"query": mutation, "variables": variables},
-            timeout=20,
+            timeout=httpx.Timeout(connect=5.0, read=15.0, write=5.0, pool=5.0),
         )
         resp.raise_for_status()
         data = resp.json()
@@ -121,24 +121,23 @@ def _post_to_channel(
         return {"channel_id": channel_id, "error": str(exc)}
 
 
-@tool
-def buffer_schedule_post(
+def schedule_via_buffer(
     text: str,
     scheduled_at: Optional[str] = None,
-    platforms: Optional[str] = "linkedin,twitter",
+    platforms: str = "linkedin,twitter",
     post_now: bool = False,
-) -> str:
+) -> dict[str, Any]:
     """
-    Schedule or immediately publish a post via Buffer to LinkedIn and/or X/Twitter.
+    Core scheduling function used directly by the Publisher agent.
 
     Args:
-        text: The post text (will be auto-trimmed for Twitter's 280-char limit).
-        scheduled_at: ISO 8601 datetime string. Ignored if post_now is True.
-        platforms: Comma-separated platforms: 'linkedin', 'twitter', or both.
-        post_now: If True, publishes immediately instead of scheduling.
+        text: Post text (auto-trimmed to 280 chars for Twitter).
+        scheduled_at: ISO 8601 datetime string; ignored when post_now=True.
+        platforms: Comma-separated 'linkedin', 'twitter', or both.
+        post_now: Publish immediately (shareNow) instead of scheduling.
 
     Returns:
-        JSON string with created post IDs and status for each platform.
+        {"success": True, "updates": [...]} or {"error": "..."}
     """
     target_platforms = [p.strip().lower() for p in (platforms or "linkedin,twitter").split(",")]
     results = []
@@ -158,7 +157,20 @@ def buffer_schedule_post(
             result["platform"] = "twitter"
             results.append(result)
 
-    return json.dumps({"success": True, "updates": results})
+    return {"success": True, "updates": results}
+
+
+# ── LangChain tool wrappers (thin shims over schedule_via_buffer) ─────────────
+
+@tool
+def buffer_schedule_post(
+    text: str,
+    scheduled_at: Optional[str] = None,
+    platforms: Optional[str] = "linkedin,twitter",
+    post_now: bool = False,
+) -> str:
+    """Schedule or immediately publish a post via Buffer to LinkedIn and/or X/Twitter."""
+    return json.dumps(schedule_via_buffer(text, scheduled_at, platforms or "linkedin,twitter", post_now))
 
 
 @tool
@@ -187,19 +199,3 @@ def buffer_get_profiles() -> str:
         return json.dumps(channels)
     except Exception as exc:
         return json.dumps({"error": str(exc)})
-
-
-def schedule_via_buffer(
-    text: str,
-    scheduled_at: Optional[str] = None,
-    platforms: str = "linkedin,twitter",
-    post_now: bool = False,
-) -> dict[str, Any]:
-    """Direct (non-tool) version for use inside the Publisher agent node."""
-    result_str = buffer_schedule_post.invoke({
-        "text": text,
-        "scheduled_at": scheduled_at,
-        "platforms": platforms,
-        "post_now": post_now,
-    })
-    return json.loads(result_str)

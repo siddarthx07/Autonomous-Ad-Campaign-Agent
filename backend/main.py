@@ -30,6 +30,22 @@ load_dotenv()
 _sessions: dict[str, dict[str, Any] | None] = {}
 # Event queues: session_id → asyncio.Queue of event dicts
 _event_queues: dict[str, asyncio.Queue] = {}
+# Session creation timestamps for TTL eviction
+_session_timestamps: dict[str, float] = {}
+
+# Sessions older than this are evicted from memory (keeps RAM bounded for demos)
+_SESSION_TTL_SECONDS = 3 * 60 * 60  # 3 hours
+
+
+def _evict_expired_sessions() -> None:
+    """Remove sessions older than _SESSION_TTL_SECONDS."""
+    import time
+    cutoff = time.time() - _SESSION_TTL_SECONDS
+    expired = [sid for sid, ts in _session_timestamps.items() if ts < cutoff]
+    for sid in expired:
+        _sessions.pop(sid, None)
+        _event_queues.pop(sid, None)
+        _session_timestamps.pop(sid, None)
 
 
 @asynccontextmanager
@@ -77,75 +93,15 @@ class CampaignStartResponse(BaseModel):
     message: str
 
 
-# ── Background task: run the graph and push events ───────────────────────────
+# ── Background task: run the graph and stream events ─────────────────────────
 
-async def _run_campaign_graph(session_id: str, request: CampaignRequest) -> None:
-    """Run the LangGraph campaign graph in a thread and push SSE events."""
-    from graph.campaign_graph import campaign_graph, make_initial_state
-
-    queue = _event_queues[session_id]
-
-    initial_state = make_initial_state(
-        product_name=request.product_name,
-        product_description=request.product_description,
-        campaign_goal=request.campaign_goal,
-        target_audience=request.target_audience,
-        tone=request.tone,
-        budget=request.budget,
-        platforms=request.platforms,
-        session_id=session_id,
-    )
-
-    await queue.put({
-        "type": "start",
-        "session_id": session_id,
-        "message": "Campaign agent pipeline starting...",
-    })
-
-    seen_event_ids: set[str] = set()
-    final_state = None
-
-    try:
-        # Stream graph execution step by step
-        loop = asyncio.get_event_loop()
-
-        def run_graph():
-            return campaign_graph.invoke(initial_state)
-
-        # Run synchronous LangGraph in thread pool to avoid blocking event loop
-        final_state = await loop.run_in_executor(None, run_graph)
-
-        # Push any events accumulated in state that we haven't streamed yet
-        for event in final_state.get("events", []):
-            eid = event.get("id", "")
-            if eid not in seen_event_ids:
-                seen_event_ids.add(eid)
-                await queue.put({"type": "agent_event", "event": event})
-
-        _sessions[session_id] = final_state
-
-        await queue.put({
-            "type": "complete",
-            "session_id": session_id,
-            "status": final_state.get("status", "done"),
-            "publish_result": final_state.get("publish_result"),
-        })
-
-    except Exception as e:
-        _sessions[session_id] = {"error": str(e), "status": "failed"}
-        await queue.put({
-            "type": "error",
-            "session_id": session_id,
-            "error": str(e),
-        })
-    finally:
-        await queue.put(None)  # sentinel to close the stream
-
-
-async def _stream_graph_with_steps(session_id: str, request: CampaignRequest) -> None:
+async def _run_campaign(session_id: str, request: CampaignRequest) -> None:
     """
-    Alternative: stream individual node outputs using LangGraph's astream_events.
-    Gives per-node streaming rather than waiting for full completion.
+    Execute the LangGraph campaign pipeline once using astream (stream_mode="values").
+
+    Each chunk is the full accumulated state after a node completes — the last
+    chunk IS the final state, so we never need to call invoke() separately.
+    This eliminates the previous double-execution bug.
     """
     from graph.campaign_graph import campaign_graph, make_initial_state
 
@@ -169,61 +125,40 @@ async def _stream_graph_with_steps(session_id: str, request: CampaignRequest) ->
     })
 
     seen_event_ids: set[str] = set()
-    final_state = None
-    last_known_events: list = []
+    final_state: dict[str, Any] = {}
 
     try:
-        async for chunk in campaign_graph.astream(initial_state, stream_mode="updates"):
-            for node_name, node_output in chunk.items():
-                # Push new events from this node's output
-                new_events = node_output.get("events", [])
-                for event in new_events:
-                    eid = event.get("id", "")
-                    if eid not in seen_event_ids:
-                        seen_event_ids.add(eid)
-                        await queue.put({
-                            "type": "agent_event",
-                            "node": node_name,
-                            "event": event,
-                        })
+        # stream_mode="values" yields the complete state snapshot after each node.
+        # No second invoke() needed — the last snapshot is the final state.
+        async for state_snapshot in campaign_graph.astream(
+            initial_state, stream_mode="values"
+        ):
+            final_state = state_snapshot
 
-                # Track latest state fields for final response
-                last_known_events.extend(new_events)
-
-                # Push node completion signal
-                await queue.put({
-                    "type": "node_complete",
-                    "node": node_name,
-                })
-
-        # Fetch final state
-        final_state = await asyncio.get_event_loop().run_in_executor(
-            None, lambda: campaign_graph.invoke(initial_state)
-        )
-
-    except Exception as e:
-        # Try to get final state even on error (some nodes may have succeeded)
-        if final_state is None:
-            final_state = {"error": str(e), "status": "failed", "events": last_known_events}
+            # Forward any new agent events to the SSE queue
+            for event in state_snapshot.get("events", []):
+                eid = event.get("id", "")
+                if eid not in seen_event_ids:
+                    seen_event_ids.add(eid)
+                    await queue.put({"type": "agent_event", "event": event})
 
         _sessions[session_id] = final_state
         await queue.put({
+            "type": "complete",
+            "session_id": session_id,
+            "status": final_state.get("status", "done"),
+            "publish_result": final_state.get("publish_result"),
+        })
+
+    except Exception as exc:
+        _sessions[session_id] = {**final_state, "error": str(exc), "status": "failed"}
+        await queue.put({
             "type": "error",
             "session_id": session_id,
-            "error": str(e),
+            "error": str(exc),
         })
-        await queue.put(None)
-        return
-
-    _sessions[session_id] = final_state
-
-    await queue.put({
-        "type": "complete",
-        "session_id": session_id,
-        "status": final_state.get("status", "done"),
-        "publish_result": final_state.get("publish_result"),
-    })
-    await queue.put(None)
+    finally:
+        await queue.put(None)  # sentinel — closes the SSE stream
 
 
 # ── API Endpoints ──────────────────────────────────────────────────────────────
@@ -239,12 +174,17 @@ async def run_campaign(request: CampaignRequest):
     Start an autonomous campaign run.
     Returns session_id immediately; stream progress via GET /api/campaign/stream?session_id=...
     """
+    import time
     session_id = request.session_id or str(uuid.uuid4())
     _sessions[session_id] = None
     _event_queues[session_id] = asyncio.Queue()
+    _session_timestamps[session_id] = time.time()
+
+    # Evict sessions older than TTL to prevent unbounded memory growth
+    _evict_expired_sessions()
 
     # Kick off graph in background
-    asyncio.create_task(_stream_graph_with_steps(session_id, request))
+    asyncio.create_task(_run_campaign(session_id, request))
 
     return CampaignStartResponse(
         session_id=session_id,

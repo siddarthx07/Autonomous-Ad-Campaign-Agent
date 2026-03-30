@@ -11,6 +11,7 @@ Stores research findings in working memory (state).
 """
 from __future__ import annotations
 
+import concurrent.futures
 import uuid
 from datetime import datetime
 
@@ -21,6 +22,26 @@ from graph.state import CampaignState
 from tools.web_search import web_search, competitive_research
 
 _llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.2)
+
+# Timeout for each individual Tavily search call (seconds)
+_SEARCH_TIMEOUT = 12.0
+_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+
+
+def _safe_search(tool, kwargs: dict, timeout: float = _SEARCH_TIMEOUT) -> str:
+    """
+    Run a LangChain tool in a thread with a wall-clock timeout.
+    Returns an empty string on timeout or any error so the agent
+    can continue with partial results rather than hanging indefinitely.
+    """
+    future = _EXECUTOR.submit(tool.invoke, kwargs)
+    try:
+        return future.result(timeout=timeout)
+    except concurrent.futures.TimeoutError:
+        future.cancel()
+        return f"[Search timed out after {timeout}s — skipped]"
+    except Exception as exc:
+        return f"[Search error: {exc}]"
 
 _SYSTEM = """You are a market research analyst specialising in digital advertising.
 Your task is to synthesise web research into actionable insights for a campaign.
@@ -37,7 +58,13 @@ Keep each section concise and directly actionable for the content writer.
 
 
 def researcher_node(state: CampaignState) -> dict:
-    """LangGraph node: performs web research and synthesises findings."""
+    """
+    LangGraph node: performs web research and synthesises findings.
+
+    This is a synchronous node. LangGraph's astream() runs sync nodes in a
+    thread pool via run_in_executor, so these calls do not block the event loop.
+    _safe_search adds a per-call wall-clock timeout on top of that.
+    """
 
     product = state["product_name"]
     goal = state["campaign_goal"]
@@ -53,11 +80,11 @@ def researcher_node(state: CampaignState) -> dict:
     ]
 
     for q in queries:
-        result = web_search.invoke({"query": q, "max_results": 4})
+        result = _safe_search(web_search, {"query": q, "max_results": 4})
         search_results.append(f"Search: {q}\n{result}")
 
     # Run competitive research
-    comp_result = competitive_research.invoke({
+    comp_result = _safe_search(competitive_research, {
         "product_category": product,
         "platform": "LinkedIn",
     })

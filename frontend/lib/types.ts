@@ -1,5 +1,5 @@
 export interface AdVariant {
-  platform: "linkedin_post" | "linkedin_ad" | "buffer";
+  platform: "linkedin_post" | "twitter_post" | "buffer";
   headline: string;
   body: string;
   cta: string;
@@ -32,9 +32,9 @@ export interface CampaignPlan {
 }
 
 export interface PublishResult {
-  linkedin_post_id: string | null;
-  linkedin_ad_id: string | null;
   buffer_update_ids: string[];
+  linkedin_ids: string[];
+  twitter_ids: string[];
   published_at: string | null;
   errors: string[];
 }

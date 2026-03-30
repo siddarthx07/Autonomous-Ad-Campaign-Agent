@@ -42,9 +42,9 @@ class CampaignPlan(TypedDict):
 
 
 class PublishResult(TypedDict):
-    linkedin_post_id: Optional[str]
-    linkedin_ad_id: Optional[str]
-    buffer_update_ids: list[str]
+    buffer_update_ids: list[str]   # Buffer post IDs (LinkedIn + X/Twitter)
+    linkedin_ids: list[str]        # subset posted to LinkedIn channel
+    twitter_ids: list[str]         # subset posted to X/Twitter channel
     published_at: Optional[str]
     errors: list[str]
 

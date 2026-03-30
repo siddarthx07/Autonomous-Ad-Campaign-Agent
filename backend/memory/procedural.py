@@ -8,9 +8,13 @@ relevant to their current task (e.g. "how to create a LinkedIn ad").
 from __future__ import annotations
 
 import os
+import threading
 
 import chromadb
 from chromadb.utils import embedding_functions
+
+_seed_lock = threading.Lock()
+_seeded = False
 
 
 _COLLECTION = "procedures"
@@ -105,13 +109,22 @@ def _get_collection() -> chromadb.Collection:
 
 
 def _seed_if_empty(col: chromadb.Collection) -> None:
-    if col.count() > 0:
+    """
+    Seed once per process lifetime using double-checked locking to prevent
+    concurrent requests from both seeing count() == 0 and double-inserting.
+    """
+    global _seeded
+    if _seeded or col.count() > 0:
         return
-    col.upsert(
-        ids=[p["id"] for p in _SEED_PROCEDURES],
-        documents=[p["text"] for p in _SEED_PROCEDURES],
-        metadatas=[{"source": "seed"} for _ in _SEED_PROCEDURES],
-    )
+    with _seed_lock:
+        if _seeded:
+            return
+        col.upsert(
+            ids=[p["id"] for p in _SEED_PROCEDURES],
+            documents=[p["text"] for p in _SEED_PROCEDURES],
+            metadatas=[{"source": "seed"} for _ in _SEED_PROCEDURES],
+        )
+        _seeded = True
 
 
 def retrieve_procedures(query: str, n_results: int = 2) -> str:

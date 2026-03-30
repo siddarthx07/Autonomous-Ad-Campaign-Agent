@@ -16,12 +16,10 @@ from memory.memory_manager import memory_manager
 from tools.buffer_tool import schedule_via_buffer
 
 
-# Platforms each ad variant maps to in Buffer
+# Maps variant type → Buffer platform target(s)
 _VARIANT_PLATFORM_MAP = {
     "linkedin_post": "linkedin",
-    "linkedin_ad":   "linkedin",
     "twitter_post":  "twitter",
-    "buffer":        "linkedin,twitter",  # generic → both
 }
 
 
@@ -97,6 +95,14 @@ def publisher_node(state: CampaignState) -> dict:
                 f"{result.get('error', 'unknown')}"
             )
 
+    publish_result: PublishResult = {
+        "buffer_update_ids": buffer_update_ids,
+        "linkedin_ids": linkedin_ids,
+        "twitter_ids": twitter_ids,
+        "published_at": datetime.utcnow().isoformat(),
+        "errors": errors,
+    }
+
     # ── Save to Episodic Memory ───────────────────────────────────────────
     memory_manager.save_episode(
         session_id=state["session_id"],
@@ -106,20 +112,8 @@ def publisher_node(state: CampaignState) -> dict:
         campaign_plan=state.get("campaign_plan"),
         ad_variants=variants,
         critic_score=state.get("critic_score"),
-        publish_result={
-            "linkedin_post_id": linkedin_ids[0] if linkedin_ids else None,
-            "buffer_update_ids": buffer_update_ids,
-            "errors": errors,
-        },
+        publish_result=publish_result,
     )
-
-    publish_result: PublishResult = {
-        "linkedin_post_id": linkedin_ids[0] if linkedin_ids else None,
-        "linkedin_ad_id": None,
-        "buffer_update_ids": buffer_update_ids,
-        "published_at": datetime.utcnow().isoformat(),
-        "errors": errors,
-    }
 
     success = len(buffer_update_ids) > 0
     status = "published" if success else "failed"

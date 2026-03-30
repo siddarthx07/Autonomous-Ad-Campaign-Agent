@@ -7,12 +7,15 @@ practices. Queried during planning and content writing to ground agent reasoning
 from __future__ import annotations
 
 import os
+import threading
 
 import chromadb
 from chromadb.utils import embedding_functions
 
 
 _COLLECTION = "knowledge"
+_seed_lock = threading.Lock()
+_seeded = False
 
 _SEED_DOCUMENTS = [
     {
@@ -114,13 +117,25 @@ def _get_collection() -> chromadb.Collection:
 
 
 def _seed_if_empty(col: chromadb.Collection) -> None:
-    if col.count() > 0:
+    """
+    Seed the collection once per process lifetime.
+    The module-level flag + lock prevents duplicate inserts under
+    concurrent requests that both see count() == 0.
+    Using upsert (not add) means a double-seed is harmless, but the
+    flag avoids the unnecessary round-trips entirely.
+    """
+    global _seeded
+    if _seeded or col.count() > 0:
         return
-    col.upsert(
-        ids=[d["id"] for d in _SEED_DOCUMENTS],
-        documents=[d["text"] for d in _SEED_DOCUMENTS],
-        metadatas=[{"source": "seed"} for _ in _SEED_DOCUMENTS],
-    )
+    with _seed_lock:
+        if _seeded:  # re-check inside lock (double-checked locking)
+            return
+        col.upsert(
+            ids=[d["id"] for d in _SEED_DOCUMENTS],
+            documents=[d["text"] for d in _SEED_DOCUMENTS],
+            metadatas=[{"source": "seed"} for _ in _SEED_DOCUMENTS],
+        )
+        _seeded = True
 
 
 def retrieve_knowledge(query: str, n_results: int = 3) -> str:
