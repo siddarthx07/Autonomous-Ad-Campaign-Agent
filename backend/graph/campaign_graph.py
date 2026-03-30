@@ -5,8 +5,8 @@ Defines the full multi-agent pipeline as a directed state graph.
 
 Flow:
   START
-    → orchestrator          (load memory, create task plan)
-    → planner               (campaign strategy)
+    → coordinator           (load memory, create task plan)
+    → strategist            (campaign strategy)
     → researcher            (web search + synthesis)
     → content_writer        (ad copy generation)
     → targeting             (audience segments)
@@ -25,8 +25,8 @@ from typing import Any
 from langgraph.graph import StateGraph, END
 
 from graph.state import CampaignState
-from agents.orchestrator import orchestrator_node
-from agents.planner import planner_node
+from agents.coordinator import coordinator_node
+from agents.strategist import strategist_node
 from agents.researcher import researcher_node
 from agents.content_writer import content_writer_node
 from agents.targeting import targeting_node
@@ -40,8 +40,8 @@ def build_graph() -> Any:
     graph = StateGraph(CampaignState)
 
     # Register nodes
-    graph.add_node("orchestrator", orchestrator_node)
-    graph.add_node("planner", planner_node)
+    graph.add_node("coordinator", coordinator_node)
+    graph.add_node("strategist", strategist_node)
     graph.add_node("researcher", researcher_node)
     graph.add_node("content_writer", content_writer_node)
     graph.add_node("targeting", targeting_node)
@@ -49,9 +49,9 @@ def build_graph() -> Any:
     graph.add_node("publisher", publisher_node)
 
     # Linear edges
-    graph.set_entry_point("orchestrator")
-    graph.add_edge("orchestrator", "planner")
-    graph.add_edge("planner", "researcher")
+    graph.set_entry_point("coordinator")
+    graph.add_edge("coordinator", "strategist")
+    graph.add_edge("strategist", "researcher")
     graph.add_edge("researcher", "content_writer")
     graph.add_edge("content_writer", "targeting")
     graph.add_edge("targeting", "critic")
@@ -105,7 +105,7 @@ def make_initial_state(
         custom_cadence=custom_cadence,
         messages=[],
         task_plan=[],
-        orchestrator_notes="",
+        coordinator_notes="",
         episodic_context="",
         campaign_lessons={},
         semantic_context="",

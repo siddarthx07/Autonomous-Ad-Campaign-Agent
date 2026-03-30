@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Autonomous Ad Campaign Agent — System Design</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #080b14;
+    color: #e2e8f0;
+    font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    padding: 32px;
+    min-width: 1400px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #e2e8f0;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 11px;
+    color: #4b5563;
+    margin-bottom: 28px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 190px 260px 268px 230px 420px;
+    gap: 12px;
+    align-items: start;
+  }
+
+  /* ─── PANEL ─── */
+  .panel {
+    background: #0f1320;
+    border: 1px solid #1f2937;
+    border-radius: 14px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .panel-label {
+    text-align: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: #4b5563;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: #141928;
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+    padding: 10px 11px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-body {
+    font-size: 8.5px;
+    color: #6b7280;
+    line-height: 1.7;
+  }
+  .card-body b { color: #94a3b8; }
+  .card-body .dim { color: #374151; }
+  .tag {
+    display: inline-block;
+    font-size: 8px;
+    padding: 1px 7px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* ─── AGENT CARDS ─── */
+  .agent { border-radius: 11px; padding: 11px 12px; margin-bottom: 0; position: relative; }
+  .agent-header { font-size: 11px; font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; }
+  .agent-model { font-size: 8px; color: #4b5563; font-weight: 400; }
+  .agent-body { font-size: 8.5px; line-height: 1.75; }
+  .agent-footer { font-size: 7.5px; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.06); }
+
+  .arrow-down {
+    text-align: center;
+    font-size: 14px;
+    color: #374151;
+    margin: 1px 0;
+    line-height: 1;
+  }
+  .arrow-down.pass { color: #10b981; font-size: 9px; }
+
+  /* ─── AGENT COLOURS ─── */
+  .coordinator { background: linear-gradient(135deg,#6366f118,#4f46e508); border: 1px solid #6366f140; }
+  .coordinator .agent-header { color: #a5b4fc; }
+  .coordinator .agent-body { color: #c7d2fe; }
+  .coordinator .agent-footer { color: #6366f1; }
+
+  .strategist { background: linear-gradient(135deg,#8b5cf618,#7c3aed08); border: 1px solid #8b5cf640; }
+  .strategist .agent-header { color: #c4b5fd; }
+  .strategist .agent-body { color: #ddd6fe; }
+  .strategist .agent-footer { color: #8b5cf6; }
+
+  .researcher { background: linear-gradient(135deg,#06b6d418,#0891b208); border: 1px solid #06b6d440; }
+  .researcher .agent-header { color: #67e8f9; }
+  .researcher .agent-body { color: #cffafe; }
+  .researcher .agent-footer { color: #06b6d4; }
+
+  .writer { background: linear-gradient(135deg,#10b98118,#05966908); border: 1px solid #10b98140; }
+  .writer .agent-header { color: #6ee7b7; }
+  .writer .agent-body { color: #d1fae5; }
+  .writer .agent-footer { color: #10b981; }
+
+  .targeting { background: linear-gradient(135deg,#f59e0b18,#d9770608); border: 1px solid #f59e0b40; }
+  .targeting .agent-header { color: #fcd34d; }
+  .targeting .agent-body { color: #fef3c7; }
+  .targeting .agent-footer { color: #f59e0b; }
+
+  .critic { background: linear-gradient(135deg,#ef444418,#dc262608); border: 1px solid #ef444440; }
+  .critic .agent-header { color: #fca5a5; }
+  .critic .agent-body { color: #fee2e2; }
+  .critic .agent-footer { color: #ef4444; }
+
+  .publisher { background: linear-gradient(135deg,#3b82f618,#2563eb08); border: 1px solid #3b82f640; }
+  .publisher .agent-header { color: #93c5fd; }
+  .publisher .agent-body { color: #dbeafe; }
+  .publisher .agent-footer { color: #3b82f6; }
+
+  /* critic loop label */
+  .critic-loop-label {
+    background: #ef444410;
+    border: 1px dashed #ef444440;
+    border-radius: 8px;
+    padding: 5px 8px;
+    font-size: 8px;
+    color: #ef4444;
+    text-align: center;
+    margin: 2px 0;
+  }
+
+  /* working memory bar */
+  .working-mem-bar {
+    background: #6366f110;
+    border: 1px solid #6366f130;
+    border-radius: 8px;
+    padding: 6px 10px;
+    text-align: center;
+    font-size: 8.5px;
+    color: #818cf8;
+    margin-top: 4px;
+  }
+
+  /* memory cards */
+  .mem-episodic  { border-color: #8b5cf640; }
+  .mem-episodic .card-title { color: #c4b5fd; }
+  .mem-semantic  { border-color: #06b6d440; }
+  .mem-semantic .card-title { color: #67e8f9; }
+  .mem-conv      { border-color: #10b98140; }
+  .mem-conv .card-title { color: #6ee7b7; }
+  .mem-entity    { border-color: #f59e0b40; }
+  .mem-entity .card-title { color: #fcd34d; }
+  .mem-procedural{ border-color: #ef444440; }
+  .mem-procedural .card-title { color: #fca5a5; }
+  .mem-working   { border-color: #6366f140; }
+  .mem-working .card-title { color: #a5b4fc; }
+
+  /* learning loop */
+  .learn-loop {
+    border: 1.5px dashed #6366f150;
+    border-radius: 10px;
+    padding: 10px 11px;
+    background: #6366f106;
+  }
+  .learn-loop .card-title { color: #a5b4fc; }
+
+  /* db box */
+  .db-box { border-color: #2d3748; }
+  .db-box .card-title { color: #94a3b8; }
+
+  /* tools */
+  .tool-openai  { border-color: #10b98140; }
+  .tool-openai .card-title { color: #6ee7b7; }
+  .tool-tavily  { border-color: #06b6d440; }
+  .tool-tavily .card-title { color: #67e8f9; }
+  .tool-buffer  { border-color: #3b82f640; }
+  .tool-buffer .card-title { color: #93c5fd; }
+
+  /* ext services */
+  .ext-state { border-color: #6366f140; background: #0f1525; }
+  .ext-state .card-title { color: #a5b4fc; font-size: 10px; }
+  .ext-state pre { font-size: 7.5px; color: #6b7280; line-height: 1.8; background: #080b14; border-radius: 6px; padding: 8px; margin-top: 6px; overflow: hidden; }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 8px; margin-top: 6px; }
+  .data-table th { color: #4b5563; font-weight: 600; text-align: left; padding: 3px 5px; border-bottom: 1px solid #1f2937; }
+  .data-table td { color: #94a3b8; padding: 3px 5px; border-bottom: 1px solid #0f1320; vertical-align: top; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table .agt { font-weight: 600; }
+  .data-table .agt.o { color: #a5b4fc; }
+  .data-table .agt.pl { color: #c4b5fd; }
+  .data-table .agt.re { color: #67e8f9; }
+  .data-table .agt.cw { color: #6ee7b7; }
+  .data-table .agt.tg { color: #fcd34d; }
+  .data-table .agt.cr { color: #fca5a5; }
+  .data-table .agt.pu { color: #93c5fd; }
+
+  .critic-qual-box {
+    border: 1px dashed #ef444430;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #ef444406;
+    margin-top: 6px;
+  }
+  .critic-qual-box .title { font-size: 10px; font-weight: 700; color: #fca5a5; margin-bottom: 6px; }
+  .critic-qual-box .row { font-size: 8.5px; color: #94a3b8; margin-bottom: 3px; }
+  .critic-qual-box .row .pass { color: #10b981; }
+  .critic-qual-box .row .fail { color: #ef4444; }
+
+  .pub-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 4px; }
+  .pub-modes .mode { background: #080b14; border-radius: 6px; padding: 5px 7px; font-size: 8px; }
+  .pub-modes .mode .ml { color: #818cf8; font-weight: 600; }
+  .pub-modes .mode .md { color: #4b5563; }
+
+  .ext-row { display: flex; gap: 8px; }
+  .platform-box { flex: 1; text-align: center; background: #080b14; border-radius: 8px; padding: 8px 6px; border: 1px solid #1f2937; }
+  .platform-box .ico { font-size: 20px; margin-bottom: 3px; }
+  .platform-box .name { font-size: 9px; font-weight: 600; color: #60a5fa; }
+  .platform-box .sub { font-size: 7.5px; color: #4b5563; }
+
+  .legend {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    padding: 10px 18px;
+    background: #0f1320;
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    font-size: 8.5px;
+    color: #6b7280;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .leg-line { width: 28px; height: 2px; }
+  .leg-box { width: 12px; height: 12px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<h1>Autonomous Ad Campaign Agent &mdash; System Design</h1>
+<p class="subtitle">LangGraph &middot; FastAPI &middot; Next.js 14 &middot; OpenAI GPT-4o &middot; Buffer &middot; Tavily &middot; ChromaDB &middot; SQLite</p>
+
+<div class="grid">
+
+  <!-- ═══════════ COL 1: FRONTEND ═══════════ -->
+  <div class="panel">
+    <div class="panel-label">Frontend</div>
+
+    <div class="card" style="text-align:center;padding:10px;">
+      <div style="font-size:28px;">&#128100;</div>
+      <div style="font-size:12px;font-weight:700;color:#e2e8f0;margin-top:3px;">User</div>
+    </div>
+
+    <div style="text-align:center;font-size:9px;padding:2px 6px;background:#10b98115;border:1px solid #10b98130;border-radius:6px;color:#10b981;font-weight:600;">Next.js 14 &middot; TypeScript &middot; Tailwind CSS</div>
+
+    <div class="card">
+      <div class="card-title" style="color:#c7d2fe;">&#128221; Campaign Form</div>
+      <div class="card-body">
+        <b>Product</b>: name, description, URL<br>
+        <b>USP</b>: unique selling proposition<br>
+        <b>CTA</b>: goal + link URL<br>
+        <b>Campaign</b>: goal, audience, tone<br>
+        <b>Platforms</b>: LinkedIn, X/Twitter<br>
+        <b>Publishing</b>: mode + cadence
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#c7d2fe;">&#128225; Agent Feed <span style="font-size:8px;color:#4b5563;">(Live)</span></div>
+      <div class="card-body">
+        SSE event stream from FastAPI<br>
+        Memory badge overlays<br>
+        Tool call indicators<br>
+        Real-time timestamps
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#c7d2fe;">&#9989; Campaign Results</div>
+      <div class="card-body">
+        Critic score breakdown<br>
+        Lessons applied from memory<br>
+        Generated ad copy (per platform)<br>
+        What system learned this run
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#c7d2fe;">&#129504; Memory Explorer</div>
+      <div class="card-body">
+        All 6 memory stores visible<br>
+        Live snapshots via REST API<br>
+        <span class="dim">GET /api/memory/{id}</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#c7d2fe;">&#128202; Dashboard</div>
+      <div class="card-body">Recent campaigns from SQLite<br>Persists across restarts</div>
+    </div>
+
+    <div style="text-align:center;font-size:9px;padding:2px 6px;background:#6366f115;border:1px solid #6366f130;border-radius:6px;color:#818cf8;font-weight:600;">FastAPI &middot; Python &middot; asyncio &middot; SSE</div>
+
+    <div class="card">
+      <div class="card-title" style="color:#818cf8;">REST Endpoints</div>
+      <div class="card-body">
+        <b>POST</b> /api/campaign/run<br>
+        <b>GET</b>&nbsp; /api/campaign/stream (SSE)<br>
+        <b>GET</b>&nbsp; /api/campaign/{id}<br>
+        <b>GET</b>&nbsp; /api/memory/{id}<br>
+        <b>GET</b>&nbsp; /api/sessions<br>
+        <b>GET</b>&nbsp; /api/campaign/{id}/analytics
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#818cf8;">Session Manager</div>
+      <div class="card-body">
+        _sessions: dict (RAM)<br>
+        _event_queues: asyncio.Queue<br>
+        TTL eviction: 3 hours<br>
+        SQLite fallback on restart
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ COL 2: LANGGRAPH PIPELINE ═══════════ -->
+  <div class="panel">
+    <div class="panel-label">LangGraph Pipeline</div>
+    <div style="text-align:center;font-size:8px;padding:2px 6px;background:#6366f115;border:1px solid #6366f130;border-radius:6px;color:#818cf8;font-weight:600;">StateGraph &middot; CampaignState TypedDict &middot; astream(values)</div>
+
+    <div class="agent coordinator">
+      <div class="agent-header">&#129504; COORDINATOR <span class="agent-model">GPT-4o &middot; temp=0.3</span></div>
+      <div class="agent-body">
+        Loads ALL memory systems<br>
+        Extracts structured lessons<br>
+        Generates ordered task plan<br>
+        Persists entities + conv history
+      </div>
+      <div class="agent-footer">reads: episodic &middot; semantic &middot; procedural &middot; entity &middot; conv</div>
+    </div>
+
+    <div class="arrow-down">&#8595;</div>
+
+    <div class="agent strategist">
+      <div class="agent-header">&#128203; CAMPAIGN STRATEGIST <span class="agent-model">GPT-4o &middot; temp=0.5</span></div>
+      <div class="agent-body">
+        Builds campaign strategy JSON<br>
+        KPIs &middot; timeline &middot; messaging pillars<br>
+        Uses lessons to guide tone/pillars
+      </div>
+      <div class="agent-footer">reads: procedural &middot; semantic &middot; episodic lessons</div>
+    </div>
+
+    <div class="arrow-down">&#8595;</div>
+
+    <div class="agent researcher">
+      <div class="agent-header">&#128269; RESEARCHER <span class="agent-model">GPT-4o-mini</span></div>
+      <div class="agent-body">
+        Tavily web_search + competitive_research<br>
+        Circuit breaker: 12s timeout<br>
+        product_url site-targeted search<br>
+        ThreadPoolExecutor isolation
+      </div>
+      <div class="agent-footer">tool: Tavily API &middot; ThreadPoolExecutor</div>
+    </div>
+
+    <div class="arrow-down">&#8595;</div>
+
+    <div class="agent writer">
+      <div class="agent-header">&#9997;&#65039; CONTENT WRITER <span class="agent-model">GPT-4o &middot; temp=0.7</span></div>
+      <div class="agent-body">
+        AIDA framework &middot; platform-specific rules<br>
+        LinkedIn post (800&ndash;1500 chars)<br>
+        X/Twitter post (&le;260 chars)<br>
+        Embeds CTA link URL inline<br>
+        Applies avoid_tones &middot; best_ctas
+      </div>
+      <div class="agent-footer">reads: semantic &middot; procedural &middot; lessons</div>
+    </div>
+
+    <div class="arrow-down">&#8595;</div>
+
+    <div class="agent targeting">
+      <div class="agent-header">&#127919; TARGETING <span class="agent-model">GPT-4o-mini &middot; temp=0.3</span></div>
+      <div class="agent-body">
+        2&ndash;3 LinkedIn audience segments<br>
+        Seniority &middot; industries &middot; geo<br>
+        Interests &middot; company size
+      </div>
+      <div class="agent-footer">reads: semantic &middot; conv context</div>
+    </div>
+
+    <div class="arrow-down">&#8595;</div>
+
+    <div class="agent critic">
+      <div class="agent-header">&#9878;&#65039; CRITIC <span class="agent-model">GPT-4o &middot; temp=0.1</span></div>
+      <div class="agent-body">
+        Scores: engagement &middot; brand &middot; compliance<br>
+        Threshold: overall &ge; 0.80 &rarr; publish<br>
+        &lt; 0.80 &rarr; loop back to Content Writer<br>
+        Max 3 revisions (force-pass guardrail)
+      </div>
+      <div class="agent-footer">reads: procedural SOPs</div>
+    </div>
+
+    <div class="critic-loop-label">&#8634; REVISE (score &lt; 0.80, max 3 times) &uarr; loops to Content Writer</div>
+
+    <div class="arrow-down pass">&#10003; PASS (&ge; 0.80) &darr;</div>
+
+    <div class="agent publisher">
+      <div class="agent-header">&#128640; PUBLISHER <span class="agent-model">No LLM &mdash; direct tool call</span></div>
+      <div class="agent-body">
+        Posts via Buffer GraphQL API<br>
+        Modes: now / scheduled / both<br>
+        Cadence: daily&times;1, daily&times;2, weekly, custom<br>
+        Saves completed run &rarr; Episodic Memory
+      </div>
+      <div class="agent-footer">writes: episodic &middot; tool: Buffer API</div>
+    </div>
+
+    <div class="working-mem-bar">
+      &#9889; Working Memory &mdash; CampaignState TypedDict (in-flight RAM)<br>
+      <span style="font-size:7.5px;color:#4b5563;">All agents read/write shared state &middot; LangGraph manages transitions &middot; astream(values) &rarr; no double-execution</span>
+    </div>
+  </div>
+
+  <!-- ═══════════ COL 3: MEMORY SYSTEMS ═══════════ -->
+  <div class="panel">
+    <div class="panel-label">Memory Systems</div>
+
+    <div class="card mem-working">
+      <div class="card-title">&#9889; Working Memory</div>
+      <div class="card-body">
+        CampaignState TypedDict &mdash; live in LangGraph<br>
+        All agent I/O slots, task plan, events list<br>
+        <span class="dim">store: in-process RAM &middot; lifetime: one run</span>
+      </div>
+    </div>
+
+    <div class="card mem-episodic">
+      <div class="card-title">&#127902;&#65039; Episodic Memory</div>
+      <div class="card-body">
+        Past campaign execution snapshots<br>
+        Similarity search for few-shot context<br>
+        <b style="color:#c4b5fd;">extract_campaign_lessons()</b> distils:<br>
+        &nbsp;&nbsp;best_tones &middot; avoid_tones<br>
+        &nbsp;&nbsp;top_pillars &middot; best_ctas &middot; top_score<br>
+        <span class="dim">store: ChromaDB "episodes" &middot; persisted</span>
+      </div>
+    </div>
+
+    <div class="card mem-semantic">
+      <div class="card-title">&#128218; Semantic Memory</div>
+      <div class="card-body">
+        Pre-seeded knowledge base (platform specs)<br>
+        LinkedIn / Twitter ad rules, AIDA copywriting<br>
+        Embedding similarity retrieval per agent<br>
+        <span class="dim">store: ChromaDB "knowledge" &middot; seeded once</span>
+      </div>
+    </div>
+
+    <div class="card mem-conv">
+      <div class="card-title">&#128172; Conversation History</div>
+      <div class="card-body">
+        Full message log per session (SQLite)<br>
+        Rolling LLM summary (gpt-4o-mini)<br>
+        Incremental: only new turns summarised<br>
+        Coordinator injects summary + recent turns<br>
+        <span class="dim">store: SQLite conversations + conversation_summaries</span>
+      </div>
+    </div>
+
+    <div class="card mem-entity">
+      <div class="card-title">&#127991;&#65039; Entity Memory</div>
+      <div class="card-body">
+        Structured extraction from user brief<br>
+        product &middot; campaign_goal &middot; target_audience<br>
+        tone &middot; platforms (upserted per run)<br>
+        <span class="dim">store: SQLite entities table</span>
+      </div>
+    </div>
+
+    <div class="card mem-procedural">
+      <div class="card-title">&#128220; Procedural Memory</div>
+      <div class="card-body">
+        Standard Operating Procedures (SOPs)<br>
+        Campaign planning &middot; content quality review<br>
+        Ad copywriting &middot; publishing workflow<br>
+        <span class="dim">store: ChromaDB "procedures" &middot; seeded once</span>
+      </div>
+    </div>
+
+    <div class="learn-loop">
+      <div class="card-title" style="color:#a5b4fc;">&#128260; Learning Loop</div>
+      <div class="card-body">
+        <b>Publisher</b> &rarr; stores episode (score + tone + pillars + CTAs)<br>
+        <b>Coordinator</b> &rarr; extract_campaign_lessons()<br>
+        <b>Next run</b>: best_tones &middot; avoid_tones injected<br>
+        &nbsp;&nbsp;into Strategist + Content Writer prompts<br>
+        Score &ge; 0.65 = "best" &middot; Score &lt; 0.45 = "avoid"
+      </div>
+    </div>
+
+    <div class="card db-box">
+      <div class="card-title">&#128451;&#65039; SQLite &mdash; campaign_agent.db</div>
+      <div class="card-body">
+        campaigns &middot; conversations<br>
+        conversation_summaries &middot; entities<br>
+        performance_metrics<br>
+        <span class="dim">persists across server restarts</span>
+      </div>
+    </div>
+
+    <div class="card db-box">
+      <div class="card-title">&#128309; ChromaDB &mdash; chroma_db/</div>
+      <div class="card-body">
+        episodes &middot; knowledge &middot; procedures<br>
+        sentence-transformers embeddings<br>
+        double-checked locking (race-safe seeding)<br>
+        <span class="dim">persisted to disk</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ COL 4: TOOLS + LLMs + DBs ═══════════ -->
+  <div class="panel">
+    <div class="panel-label">Tools &amp; LLMs</div>
+
+    <div class="card tool-openai">
+      <div class="card-title">&#129302; OpenAI API</div>
+      <div class="card-body">
+        <b>GPT-4o</b> (temp 0.1&ndash;0.7)<br>
+        &nbsp;&nbsp;Coordinator &middot; Strategist<br>
+        &nbsp;&nbsp;Content Writer &middot; Critic<br>
+        &nbsp;&nbsp;Conv Summariser<br>
+        <b>GPT-4o-mini</b> (cost-efficient)<br>
+        &nbsp;&nbsp;Researcher &middot; Targeting<br>
+        <span class="dim">LangChain ChatOpenAI wrapper</span>
+      </div>
+    </div>
+
+    <div class="card tool-tavily">
+      <div class="card-title">&#128270; Tavily Search API</div>
+      <div class="card-body">
+        web_search &mdash; general queries<br>
+        competitive_research &mdash; rival analysis<br>
+        product_url site-targeted search<br>
+        12s timeout &middot; circuit breaker<br>
+        <span class="dim">ThreadPoolExecutor isolation</span>
+      </div>
+    </div>
+
+    <div class="card tool-buffer">
+      <div class="card-title">&#128228; Buffer GraphQL Tool</div>
+      <div class="card-body">
+        schedule_via_buffer() core impl<br>
+        buffer_schedule_post() @tool wrapper<br>
+        Modes: shareNow / customScheduled<br>
+        Twitter: auto-truncate to 260 chars<br>
+        httpx.Timeout(30s) per request<br>
+        org_id cached after first fetch<br>
+        <span class="dim">Channels: BUFFER_LINKEDIN_CHANNEL_ID</span><br>
+        <span class="dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUFFER_TWITTER_CHANNEL_ID</span>
+      </div>
+    </div>
+
+    <div class="card db-box">
+      <div class="card-title">&#127956;&#65039; Session State (RAM)</div>
+      <div class="card-body">
+        _sessions: dict[session_id &rarr; state]<br>
+        _event_queues: asyncio.Queue<br>
+        _session_timestamps: TTL tracker<br>
+        3h TTL eviction &middot; SQLite fallback
+      </div>
+    </div>
+
+    <div class="card db-box">
+      <div class="card-title">&#128225; SSE Stream</div>
+      <div class="card-body">
+        agent_event &middot; complete &middot; error<br>
+        EventSourceResponse (sse-starlette)<br>
+        Frontend EventSource listener<br>
+        Auto-close on complete/error
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:9px;padding:3px;background:#37415120;border-radius:6px;color:#4b5563;font-weight:600;letter-spacing:1px;">ENV VARS</div>
+    <div class="card db-box" style="font-size:8px;">
+      <div class="card-body">
+        OPENAI_API_KEY<br>
+        TAVILY_API_KEY<br>
+        BUFFER_ACCESS_TOKEN<br>
+        BUFFER_LINKEDIN_CHANNEL_ID<br>
+        BUFFER_TWITTER_CHANNEL_ID<br>
+        CHROMA_PERSIST_DIR<br>
+        SQLITE_DB_PATH &middot; BACKEND_PORT
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ COL 5: EXTERNAL SERVICES + STATE ═══════════ -->
+  <div class="panel">
+    <div class="panel-label">External Services &amp; State Detail</div>
+
+    <!-- CampaignState -->
+    <div class="card ext-state">
+      <div class="card-title">&#9889; CampaignState &mdash; Working Memory (TypedDict)</div>
+      <pre>
+USER INPUTS
+  session_id &middot; product_name &middot; product_description
+  product_url &middot; usp &middot; cta_goal &middot; cta_link
+  campaign_goal &middot; target_audience &middot; tone
+  platforms &middot; publish_mode &middot; schedule_cadence &middot; custom_cadence
+
+AGENT OUTPUTS
+  task_plan[]  &middot;  coordinator_notes  &middot;  research_findings
+  campaign_plan{}  &middot;  ad_variants[]  &middot;  audience_segments[]
+  critic_score{}  &middot;  publish_result{}  &middot;  status  &middot;  error
+
+MEMORY CONTEXT (loaded by Coordinator)
+  episodic_context  &middot;  campaign_lessons{}
+  semantic_context  &middot;  procedural_context
+  entities{}  &middot;  messages[]  &middot;  events[]
+
+CONTROL FLOW
+  revision_count  &middot;  max_revisions=3
+
+LESSONS STRUCT (campaign_lessons)
+  best_tones[]  &middot;  avoid_tones[]
+  top_pillars[]  &middot;  best_ctas[]  &middot;  top_score  &middot;  lesson_summary
+      </pre>
+    </div>
+
+    <!-- Agent data flow table -->
+    <div class="card db-box">
+      <div class="card-title" style="color:#94a3b8;">Agent Data Flow</div>
+      <table class="data-table">
+        <thead><tr><th>Agent</th><th>Reads</th><th>Writes</th></tr></thead>
+        <tbody>
+          <tr><td class="agt o">Coordinator</td><td>episodic, semantic, procedural, entity, conv</td><td>task_plan, entities, lessons</td></tr>
+          <tr><td class="agt pl">Strategist</td><td>procedural, semantic, lessons</td><td>campaign_plan</td></tr>
+          <tr><td class="agt re">Researcher</td><td>Tavily API, product_url</td><td>research_findings</td></tr>
+          <tr><td class="agt cw">Content Writer</td><td>semantic, procedural, lessons, critic_fb</td><td>ad_variants[]</td></tr>
+          <tr><td class="agt tg">Targeting</td><td>semantic, conv_context, research</td><td>audience_segments[]</td></tr>
+          <tr><td class="agt cr">Critic</td><td>procedural SOPs, ad_variants</td><td>critic_score &rarr; revise/publish</td></tr>
+          <tr><td class="agt pu">Publisher</td><td>Buffer API, publish_mode, cadence</td><td>publish_result, episodic store</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:7.5px;color:#374151;margin-top:5px;">* All agents emit events[] &rarr; SSE queue &rarr; Frontend AgentFeed</div>
+    </div>
+
+    <!-- Critic loop -->
+    <div class="critic-qual-box">
+      <div class="title">&#9878;&#65039; Critic Quality Loop</div>
+      <div class="row">Scores: engagement &middot; brand_alignment &middot; platform_compliance &middot; message_clarity &middot; audience_resonance</div>
+      <div class="row"><span class="fail">score &lt; 0.80 AND revisions &lt; 3</span> &rarr; loop to Content Writer + specific feedback</div>
+      <div class="row"><span class="pass">score &ge; 0.80 OR revisions = 3</span> &rarr; force pass &rarr; Publisher</div>
+      <div style="font-size:7.5px;color:#4b5563;margin-top:3px;">revision_count tracked in CampaignState; prevents infinite loops</div>
+    </div>
+
+    <!-- Publishing config -->
+    <div class="card db-box">
+      <div class="card-title" style="color:#94a3b8;">Publishing Config</div>
+      <div class="pub-modes">
+        <div class="mode"><div class="ml">now</div><div class="md">All posts live immediately</div></div>
+        <div class="mode"><div class="ml">scheduled</div><div class="md">Space posts by cadence</div></div>
+        <div class="mode"><div class="ml">both</div><div class="md">First live, rest scheduled</div></div>
+        <div class="mode"><div class="ml">daily_1</div><div class="md">24h apart</div></div>
+        <div class="mode"><div class="ml">daily_2</div><div class="md">12h apart (2/day)</div></div>
+        <div class="mode"><div class="ml">weekly</div><div class="md">168h apart</div></div>
+        <div class="mode"><div class="ml">custom</div><div class="md">Free-text description</div></div>
+        <div class="mode"><div class="ml">formula</div><div class="md">interval_hrs &times; variant_idx = scheduled_at</div></div>
+      </div>
+    </div>
+
+    <!-- Buffer + social -->
+    <div class="card tool-buffer">
+      <div class="card-title">&#128228; Buffer &rarr; Social Platforms</div>
+      <div class="card-body" style="margin-bottom:8px;">
+        GraphQL endpoint: publish.buffer.com<br>
+        Auth: Bearer BUFFER_ACCESS_TOKEN<br>
+        Returns update_ids per platform<br>
+        org_id cached &middot; httpx Timeout(30s)
+      </div>
+      <div class="ext-row">
+        <div class="platform-box">
+          <div class="ico">&#128188;</div>
+          <div class="name">LinkedIn</div>
+          <div class="sub">Company Page<br>"Autonomous Campaign Agent"</div>
+        </div>
+        <div class="platform-box">
+          <div class="ico" style="font-size:18px;font-weight:900;color:#94a3b8;">&#120143;</div>
+          <div class="name">X / Twitter</div>
+          <div class="sub">@siddarth1289300<br>Auto-truncate 260 chars</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════ LEGEND ═══════════ -->
+  <div class="legend">
+    <div style="font-size:9px;font-weight:700;color:#4b5563;letter-spacing:1px;">LEGEND</div>
+    <div class="legend-item">
+      <div style="width:28px;height:2px;background:#6366f1;border-top:2px dashed #6366f1;"></div>
+      <span>SSE / API call</span>
+    </div>
+    <div class="legend-item">
+      <div class="leg-line" style="background:#4b5563;"></div>
+      <span>LangGraph edge</span>
+    </div>
+    <div class="legend-item">
+      <div class="leg-line" style="background:#ef4444;border-top:2px dashed #ef4444;"></div>
+      <span>Critic revision loop</span>
+    </div>
+    <div class="legend-item">
+      <div class="leg-line" style="background:#8b5cf6;border-top:2px dashed #8b5cf6;"></div>
+      <span>Memory read/write</span>
+    </div>
+    <div class="legend-item">
+      <div class="leg-box" style="background:#6366f120;border:1px solid #6366f150;"></div>
+      <span>GPT-4o agent</span>
+    </div>
+    <div class="legend-item">
+      <div class="leg-box" style="background:#06b6d420;border:1px solid #06b6d450;"></div>
+      <span>GPT-4o-mini agent</span>
+    </div>
+    <div class="legend-item">
+      <div class="leg-box" style="background:#3b82f620;border:1px solid #3b82f650;"></div>
+      <span>External tool / API</span>
+    </div>
+    <div class="legend-item">
+      <div class="leg-box" style="background:#8b5cf620;border:1px dashed #8b5cf650;"></div>
+      <span>ChromaDB (vector store)</span>
+    </div>
+    <div class="legend-item">
+      <div class="leg-box" style="background:#37415130;border:1px solid #374151;"></div>
+      <span>SQLite (structured)</span>
+    </div>
+    <div class="legend-item" style="margin-left:auto;color:#374151;font-size:8px;">
+      Autonomous Ad Campaign Agent &mdash; system-design.html
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

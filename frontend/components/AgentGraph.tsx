@@ -5,8 +5,8 @@ import type { AgentEvent } from "@/lib/types";
 import { AGENT_COLORS, AGENT_LABELS } from "@/lib/types";
 
 const NODES = [
-  { id: "orchestrator", label: "Orchestrator" },
-  { id: "planner", label: "Planner" },
+  { id: "coordinator", label: "Coordinator" },
+  { id: "strategist", label: "Campaign Strategist" },
   { id: "researcher", label: "Researcher" },
   { id: "content_writer", label: "Content Writer" },
   { id: "targeting", label: "Targeting" },

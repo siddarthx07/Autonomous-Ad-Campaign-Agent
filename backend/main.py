@@ -309,7 +309,7 @@ async def get_memory(session_id: str):
     if live_state and isinstance(live_state, dict):
         snapshot["working"] = {
             "task_plan": live_state.get("task_plan", []),
-            "orchestrator_notes": live_state.get("orchestrator_notes", ""),
+            "coordinator_notes": live_state.get("coordinator_notes", ""),
             "revision_count": live_state.get("revision_count", 0),
             "status": live_state.get("status", "running"),
             "conversation_summary_preview": get_conversation_summary(session_id)[:300],

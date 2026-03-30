@@ -538,7 +538,7 @@ class MemoryManager:
     ) -> dict[str, str]:
         """
         Returns a dict with context strings ready to be merged into CampaignState.
-        Called by the Orchestrator node before routing to specialised agents.
+        Called by the Coordinator node before routing to specialised agents.
         """
         episodic_query = f"{product_name} {campaign_goal} {target_audience}"
         semantic_query = f"{campaign_goal} {current_agent_task} LinkedIn ads"

@@ -1,0 +1,593 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="980" viewBox="0 0 1480 980" font-family="'SF Mono', 'JetBrains Mono', 'Fira Code', monospace">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0c14"/>
+      <stop offset="100%" style="stop-color:#0f1320"/>
+    </linearGradient>
+    <linearGradient id="coordinator-g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.18"/>
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:0.08"/>
+    </linearGradient>
+    <linearGradient id="strategist-g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.18"/>
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.08"/>
+    </linearGradient>
+    <linearGradient id="researcher-g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.18"/>
+      <stop offset="100%" style="stop-color:#0891b2;stop-opacity:0.08"/>
+    </linearGradient>
+    <linearGradient id="writer-g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.18"/>
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:0.08"/>
+    </linearGradient>
+    <linearGradient id="targeting-g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:0.18"/>
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:0.08"/>
+    </linearGradient>
+    <linearGradient id="critic-g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:0.18"/>
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:0.08"/>
+    </linearGradient>
+    <linearGradient id="publisher-g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.18"/>
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:0.08"/>
+    </linearGradient>
+    <filter id="glow-indigo">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4b5563"/>
+    </marker>
+    <marker id="arrow-indigo" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#6366f1"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+    </marker>
+    <marker id="arrow-cyan" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#06b6d4"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#8b5cf6"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#3b82f6"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1480" height="980" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="740" y="36" text-anchor="middle" font-size="18" font-weight="700" fill="#e2e8f0" letter-spacing="1">Autonomous Ad Campaign Agent — System Design</text>
+  <text x="740" y="55" text-anchor="middle" font-size="11" fill="#4b5563">LangGraph · FastAPI · Next.js · OpenAI · Buffer · ChromaDB · SQLite</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION BACKGROUNDS                                       -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- Frontend panel -->
+  <rect x="18" y="70" width="190" height="870" rx="14" fill="#111827" stroke="#1f2937" stroke-width="1.2"/>
+  <text x="113" y="92" text-anchor="middle" font-size="10" font-weight="600" fill="#6b7280" letter-spacing="1.5">FRONTEND</text>
+
+  <!-- Agent pipeline panel -->
+  <rect x="228" y="70" width="248" height="870" rx="14" fill="#111827" stroke="#1f2937" stroke-width="1.2"/>
+  <text x="352" y="92" text-anchor="middle" font-size="10" font-weight="600" fill="#6b7280" letter-spacing="1.5">LANGGRAPH PIPELINE</text>
+
+  <!-- Memory panel -->
+  <rect x="496" y="70" width="256" height="870" rx="14" fill="#111827" stroke="#1f2937" stroke-width="1.2"/>
+  <text x="624" y="92" text-anchor="middle" font-size="10" font-weight="600" fill="#6b7280" letter-spacing="1.5">MEMORY SYSTEMS</text>
+
+  <!-- Tools + LLMs panel -->
+  <rect x="772" y="70" width="218" height="440" rx="14" fill="#111827" stroke="#1f2937" stroke-width="1.2"/>
+  <text x="881" y="92" text-anchor="middle" font-size="10" font-weight="600" fill="#6b7280" letter-spacing="1.5">TOOLS &amp; LLMS</text>
+
+  <!-- Databases panel -->
+  <rect x="772" y="524" width="218" height="416" rx="14" fill="#111827" stroke="#1f2937" stroke-width="1.2"/>
+  <text x="881" y="546" text-anchor="middle" font-size="10" font-weight="600" fill="#6b7280" letter-spacing="1.5">DATABASES</text>
+
+  <!-- External services panel -->
+  <rect x="1010" y="70" width="452" height="870" rx="14" fill="#111827" stroke="#1f2937" stroke-width="1.2"/>
+  <text x="1236" y="92" text-anchor="middle" font-size="10" font-weight="600" fill="#6b7280" letter-spacing="1.5">EXTERNAL SERVICES &amp; STATE</text>
+
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- FRONTEND COMPONENTS                                       -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- User -->
+  <rect x="38" y="108" width="152" height="52" rx="10" fill="#1e2433" stroke="#374151" stroke-width="1"/>
+  <text x="114" y="129" text-anchor="middle" font-size="20">👤</text>
+  <text x="114" y="148" text-anchor="middle" font-size="11" font-weight="600" fill="#e2e8f0">User</text>
+
+  <!-- Next.js label -->
+  <rect x="38" y="175" width="152" height="20" rx="6" fill="#10b98118" stroke="#10b98140"/>
+  <text x="114" y="188" text-anchor="middle" font-size="9.5" fill="#10b981" font-weight="600">Next.js 14 · TypeScript · Tailwind</text>
+
+  <!-- Campaign Form -->
+  <rect x="38" y="204" width="152" height="58" rx="9" fill="#1a2035" stroke="#2d3748" stroke-width="1"/>
+  <text x="52" y="222" font-size="11">📝</text>
+  <text x="70" y="222" font-size="10.5" font-weight="600" fill="#c7d2fe">Campaign Form</text>
+  <text x="52" y="237" font-size="9" fill="#6b7280">· Product / USP / CTA Goal</text>
+  <text x="52" y="250" font-size="9" fill="#6b7280">· Platforms · Tone · Cadence</text>
+
+  <!-- Agent Feed -->
+  <rect x="38" y="272" width="152" height="58" rx="9" fill="#1a2035" stroke="#2d3748" stroke-width="1"/>
+  <text x="52" y="290" font-size="11">📡</text>
+  <text x="70" y="290" font-size="10.5" font-weight="600" fill="#c7d2fe">Agent Feed (Live)</text>
+  <text x="52" y="305" font-size="9" fill="#6b7280">· SSE event stream</text>
+  <text x="52" y="318" font-size="9" fill="#6b7280">· Memory badge overlays</text>
+
+  <!-- Campaign Results -->
+  <rect x="38" y="340" width="152" height="70" rx="9" fill="#1a2035" stroke="#2d3748" stroke-width="1"/>
+  <text x="52" y="358" font-size="11">✅</text>
+  <text x="70" y="358" font-size="10.5" font-weight="600" fill="#c7d2fe">Campaign Results</text>
+  <text x="52" y="373" font-size="9" fill="#6b7280">· Critic score breakdown</text>
+  <text x="52" y="386" font-size="9" fill="#6b7280">· Lessons applied (memory)</text>
+  <text x="52" y="399" font-size="9" fill="#6b7280">· Generated ad copy</text>
+
+  <!-- Memory Explorer -->
+  <rect x="38" y="420" width="152" height="58" rx="9" fill="#1a2035" stroke="#2d3748" stroke-width="1"/>
+  <text x="52" y="438" font-size="11">🧠</text>
+  <text x="70" y="438" font-size="10.5" font-weight="600" fill="#c7d2fe">Memory Explorer</text>
+  <text x="52" y="453" font-size="9" fill="#6b7280">· All 6 memory stores</text>
+  <text x="52" y="466" font-size="9" fill="#6b7280">· Live snapshots via API</text>
+
+  <!-- Dashboard -->
+  <rect x="38" y="488" width="152" height="44" rx="9" fill="#1a2035" stroke="#2d3748" stroke-width="1"/>
+  <text x="52" y="506" font-size="11">📊</text>
+  <text x="70" y="506" font-size="10.5" font-weight="600" fill="#c7d2fe">Dashboard</text>
+  <text x="52" y="521" font-size="9" fill="#6b7280">· Recent campaigns (SQLite)</text>
+
+  <!-- FastAPI label -->
+  <rect x="38" y="547" width="152" height="20" rx="6" fill="#6366f118" stroke="#6366f140"/>
+  <text x="114" y="560" text-anchor="middle" font-size="9.5" fill="#818cf8" font-weight="600">FastAPI · Python · SSE</text>
+
+  <!-- API Endpoints -->
+  <rect x="38" y="575" width="152" height="106" rx="9" fill="#1a2035" stroke="#2d3748" stroke-width="1"/>
+  <text x="52" y="593" font-size="10.5" font-weight="600" fill="#818cf8">REST API Endpoints</text>
+  <text x="52" y="608" font-size="8.5" fill="#6b7280">POST /api/campaign/run</text>
+  <text x="52" y="621" font-size="8.5" fill="#6b7280">GET  /api/campaign/stream (SSE)</text>
+  <text x="52" y="634" font-size="8.5" fill="#6b7280">GET  /api/campaign/{id}</text>
+  <text x="52" y="647" font-size="8.5" fill="#6b7280">GET  /api/memory/{id}</text>
+  <text x="52" y="660" font-size="8.5" fill="#6b7280">GET  /api/sessions</text>
+  <text x="52" y="673" font-size="8.5" fill="#6b7280">GET  /api/campaign/{id}/analytics</text>
+
+  <!-- Session Manager -->
+  <rect x="38" y="690" width="152" height="44" rx="9" fill="#1a2035" stroke="#2d3748" stroke-width="1"/>
+  <text x="52" y="708" font-size="10.5" font-weight="600" fill="#818cf8">Session Manager</text>
+  <text x="52" y="723" font-size="9" fill="#6b7280">· TTL eviction (3h) · Queue</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- LANGGRAPH AGENTS                                          -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- LangGraph label -->
+  <rect x="242" y="100" width="220" height="18" rx="5" fill="#6366f118" stroke="#6366f130"/>
+  <text x="352" y="113" text-anchor="middle" font-size="9" fill="#818cf8" font-weight="600">LangGraph StateGraph · CampaignState TypedDict</text>
+
+  <!-- COORDINATOR -->
+  <rect x="242" y="128" width="220" height="88" rx="11" fill="url(#coordinator-g)" stroke="#6366f150" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="242" y="128" width="220" height="22" rx="11" fill="#6366f130"/>
+  <rect x="242" y="139" width="220" height="11" rx="0" fill="#6366f130"/>
+  <text x="264" y="143" font-size="10.5" font-weight="700" fill="#a5b4fc">🧠  COORDINATOR</text>
+  <text x="368" y="143" font-size="8.5" fill="#818cf880">GPT-4o · temp=0.3</text>
+  <text x="252" y="162" font-size="8.5" fill="#c7d2fe">· Loads ALL memory systems</text>
+  <text x="252" y="175" font-size="8.5" fill="#c7d2fe">· Extracts structured lessons</text>
+  <text x="252" y="188" font-size="8.5" fill="#c7d2fe">· Generates ordered task plan</text>
+  <text x="252" y="201" font-size="8.5" fill="#c7d2fe">· Persists entities + conv history</text>
+  <text x="252" y="213" font-size="8" fill="#6366f1">reads: episodic · semantic · procedural · entity · conv</text>
+
+  <!-- Arrow: Coordinator → Strategist -->
+  <line x1="352" y1="216" x2="352" y2="234" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- STRATEGIST -->
+  <rect x="242" y="234" width="220" height="84" rx="11" fill="url(#strategist-g)" stroke="#8b5cf650" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="242" y="234" width="220" height="22" rx="11" fill="#8b5cf630"/>
+  <rect x="242" y="245" width="220" height="11" rx="0" fill="#8b5cf630"/>
+  <text x="264" y="249" font-size="10.5" font-weight="700" fill="#c4b5fd">📋  CAMPAIGN STRATEGIST</text>
+  <text x="380" y="249" font-size="8.5" fill="#818cf880">GPT-4o · temp=0.5</text>
+  <text x="252" y="268" font-size="8.5" fill="#ddd6fe">· Builds campaign strategy (JSON)</text>
+  <text x="252" y="281" font-size="8.5" fill="#ddd6fe">· KPIs · timeline · messaging pillars</text>
+  <text x="252" y="294" font-size="8.5" fill="#ddd6fe">· Uses lessons to guide tone/pillars</text>
+  <text x="252" y="308" font-size="8" fill="#8b5cf6">reads: procedural · semantic · episodic lessons</text>
+
+  <!-- Arrow: Strategist → Researcher -->
+  <line x1="352" y1="318" x2="352" y2="336" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- RESEARCHER -->
+  <rect x="242" y="336" width="220" height="84" rx="11" fill="url(#researcher-g)" stroke="#06b6d450" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="242" y="336" width="220" height="22" rx="11" fill="#06b6d430"/>
+  <rect x="242" y="347" width="220" height="11" rx="0" fill="#06b6d430"/>
+  <text x="264" y="351" font-size="10.5" font-weight="700" fill="#67e8f9">🔍  RESEARCHER</text>
+  <text x="374" y="351" font-size="8.5" fill="#818cf880">GPT-4o-mini</text>
+  <text x="252" y="370" font-size="8.5" fill="#cffafe">· Tavily web_search + competitive_research</text>
+  <text x="252" y="383" font-size="8.5" fill="#cffafe">· Circuit breaker: 12s timeout per call</text>
+  <text x="252" y="396" font-size="8.5" fill="#cffafe">· Uses product_url for targeted scraping</text>
+  <text x="252" y="409" font-size="8" fill="#06b6d4">tool: Tavily API  ·  ThreadPoolExecutor</text>
+
+  <!-- Arrow: Researcher → Content Writer -->
+  <line x1="352" y1="420" x2="352" y2="438" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- CONTENT WRITER -->
+  <rect x="242" y="438" width="220" height="90" rx="11" fill="url(#writer-g)" stroke="#10b98150" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="242" y="438" width="220" height="22" rx="11" fill="#10b98130"/>
+  <rect x="242" y="449" width="220" height="11" rx="0" fill="#10b98130"/>
+  <text x="264" y="453" font-size="10.5" font-weight="700" fill="#6ee7b7">✍️  CONTENT WRITER</text>
+  <text x="370" y="453" font-size="8.5" fill="#818cf880">GPT-4o · temp=0.7</text>
+  <text x="252" y="472" font-size="8.5" fill="#d1fae5">· AIDA framework · platform-specific rules</text>
+  <text x="252" y="485" font-size="8.5" fill="#d1fae5">· LinkedIn post (800-1500 chars)</text>
+  <text x="252" y="498" font-size="8.5" fill="#d1fae5">· X/Twitter post (≤260 chars)</text>
+  <text x="252" y="511" font-size="8.5" fill="#d1fae5">· Applies avoid_tones · best_ctas from lessons</text>
+  <text x="252" y="522" font-size="8" fill="#10b981">reads: semantic · procedural</text>
+
+  <!-- Arrow: Content Writer → Targeting -->
+  <line x1="352" y1="528" x2="352" y2="546" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- TARGETING -->
+  <rect x="242" y="546" width="220" height="80" rx="11" fill="url(#targeting-g)" stroke="#f59e0b50" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="242" y="546" width="220" height="22" rx="11" fill="#f59e0b30"/>
+  <rect x="242" y="557" width="220" height="11" rx="0" fill="#f59e0b30"/>
+  <text x="264" y="561" font-size="10.5" font-weight="700" fill="#fcd34d">🎯  TARGETING</text>
+  <text x="374" y="561" font-size="8.5" fill="#818cf880">GPT-4o-mini</text>
+  <text x="252" y="580" font-size="8.5" fill="#fef3c7">· 2-3 LinkedIn audience segments</text>
+  <text x="252" y="593" font-size="8.5" fill="#fef3c7">· Seniority · industries · geo · interests</text>
+  <text x="252" y="606" font-size="8.5" fill="#fef3c7">· Company size · job functions</text>
+  <text x="252" y="619" font-size="8" fill="#f59e0b">reads: semantic · conv context</text>
+
+  <!-- Arrow: Targeting → Critic -->
+  <line x1="352" y1="626" x2="352" y2="644" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- CRITIC -->
+  <rect x="242" y="644" width="220" height="90" rx="11" fill="url(#critic-g)" stroke="#ef444450" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="242" y="644" width="220" height="22" rx="11" fill="#ef444430"/>
+  <rect x="242" y="655" width="220" height="11" rx="0" fill="#ef444430"/>
+  <text x="264" y="659" font-size="10.5" font-weight="700" fill="#fca5a5">⚖️  CRITIC</text>
+  <text x="374" y="659" font-size="8.5" fill="#818cf880">GPT-4o · temp=0.1</text>
+  <text x="252" y="678" font-size="8.5" fill="#fee2e2">· Scores: engagement · brand · compliance</text>
+  <text x="252" y="691" font-size="8.5" fill="#fee2e2">· Threshold: overall ≥ 0.80 → publish</text>
+  <text x="252" y="704" font-size="8.5" fill="#fee2e2">· &lt; 0.80 → loop back to Content Writer</text>
+  <text x="252" y="717" font-size="8.5" fill="#fee2e2">· Max 3 revisions (force-pass guardrail)</text>
+  <text x="252" y="728" font-size="8" fill="#ef4444">reads: procedural SOPs</text>
+
+  <!-- CRITIC LOOP ARROW -->
+  <path d="M 244 734 L 220 734 L 220 480 L 244 480" stroke="#ef4444" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+  <text x="206" y="612" text-anchor="middle" font-size="8.5" fill="#ef4444" transform="rotate(-90,206,612)">REVISE (score &lt; 0.80)</text>
+
+  <!-- Arrow: Critic → Publisher -->
+  <line x1="352" y1="734" x2="352" y2="752" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="362" y="745" font-size="8" fill="#10b981">pass ≥ 0.80</text>
+
+  <!-- PUBLISHER -->
+  <rect x="242" y="752" width="220" height="90" rx="11" fill="url(#publisher-g)" stroke="#3b82f650" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="242" y="752" width="220" height="22" rx="11" fill="#3b82f630"/>
+  <rect x="242" y="763" width="220" height="11" rx="0" fill="#3b82f630"/>
+  <text x="264" y="767" font-size="10.5" font-weight="700" fill="#93c5fd">🚀  PUBLISHER</text>
+  <text x="366" y="767" font-size="8.5" fill="#818cf880">No LLM — direct tool call</text>
+  <text x="252" y="786" font-size="8.5" fill="#dbeafe">· Posts via Buffer GraphQL API</text>
+  <text x="252" y="799" font-size="8.5" fill="#dbeafe">· Modes: now / scheduled / both</text>
+  <text x="252" y="812" font-size="8.5" fill="#dbeafe">· Cadence: daily×1, daily×2, weekly, custom</text>
+  <text x="252" y="825" font-size="8.5" fill="#dbeafe">· Saves completed run → Episodic Memory</text>
+  <text x="252" y="836" font-size="8" fill="#3b82f6">writes: episodic  ·  tool: Buffer API</text>
+
+  <!-- Working Memory bar at bottom of pipeline -->
+  <rect x="242" y="852" width="220" height="28" rx="8" fill="#6366f112" stroke="#6366f130"/>
+  <text x="352" y="869" text-anchor="middle" font-size="9" fill="#818cf8" font-weight="600">⚡ Working Memory: CampaignState TypedDict (in-flight)</text>
+  <text x="352" y="878" text-anchor="middle" font-size="7.5" fill="#4b5563">All agents read/write shared state · LangGraph manages transitions</text>
+
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- MEMORY SYSTEMS                                            -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- 1. Working Memory -->
+  <rect x="510" y="108" width="228" height="64" rx="10" fill="#1a1f35" stroke="#6366f140" stroke-width="1.2"/>
+  <rect x="510" y="108" width="228" height="20" rx="10" fill="#6366f120"/>
+  <rect x="510" y="118" width="228" height="10" rx="0" fill="#6366f120"/>
+  <text x="524" y="122" font-size="9.5" font-weight="700" fill="#a5b4fc">⚡  Working Memory</text>
+  <text x="524" y="136" font-size="8.5" fill="#94a3b8">CampaignState TypedDict — live in LangGraph</text>
+  <text x="524" y="148" font-size="8.5" fill="#94a3b8">All agent I/O slots, task plan, events list</text>
+  <text x="524" y="160" font-size="8" fill="#4b5563">store: in-process RAM · lifetime: one run</text>
+
+  <!-- 2. Episodic Memory -->
+  <rect x="510" y="186" width="228" height="86" rx="10" fill="#1a1f35" stroke="#8b5cf640" stroke-width="1.2"/>
+  <rect x="510" y="186" width="228" height="20" rx="10" fill="#8b5cf620"/>
+  <rect x="510" y="196" width="228" height="10" rx="0" fill="#8b5cf620"/>
+  <text x="524" y="200" font-size="9.5" font-weight="700" fill="#c4b5fd">🎞️  Episodic Memory</text>
+  <text x="524" y="214" font-size="8.5" fill="#94a3b8">Past campaign execution snapshots</text>
+  <text x="524" y="227" font-size="8.5" fill="#94a3b8">Similarity search for few-shot context</text>
+  <text x="524" y="240" font-size="8.5" fill="#c4b5fd">extract_campaign_lessons() — distils:</text>
+  <text x="524" y="253" font-size="8.5" fill="#94a3b8">  best_tones · avoid_tones · top_pillars · best_ctas</text>
+  <text x="524" y="264" font-size="8" fill="#4b5563">store: ChromaDB "episodes"  ·  persisted</text>
+
+  <!-- 3. Semantic Memory -->
+  <rect x="510" y="286" width="228" height="76" rx="10" fill="#1a1f35" stroke="#06b6d440" stroke-width="1.2"/>
+  <rect x="510" y="286" width="228" height="20" rx="10" fill="#06b6d420"/>
+  <rect x="510" y="296" width="228" height="10" rx="0" fill="#06b6d420"/>
+  <text x="524" y="300" font-size="9.5" font-weight="700" fill="#67e8f9">📚  Semantic Memory</text>
+  <text x="524" y="314" font-size="8.5" fill="#94a3b8">Pre-seeded knowledge base (platform specs)</text>
+  <text x="524" y="327" font-size="8.5" fill="#94a3b8">LinkedIn / Twitter ad rules, copywriting AIDA</text>
+  <text x="524" y="340" font-size="8.5" fill="#94a3b8">Embedding similarity retrieval per agent</text>
+  <text x="524" y="352" font-size="8" fill="#4b5563">store: ChromaDB "knowledge"  ·  seeded once</text>
+
+  <!-- 4. Conversation History -->
+  <rect x="510" y="376" width="228" height="88" rx="10" fill="#1a1f35" stroke="#10b98140" stroke-width="1.2"/>
+  <rect x="510" y="376" width="228" height="20" rx="10" fill="#10b98120"/>
+  <rect x="510" y="386" width="228" height="10" rx="0" fill="#10b98120"/>
+  <text x="524" y="390" font-size="9.5" font-weight="700" fill="#6ee7b7">💬  Conversation History</text>
+  <text x="524" y="404" font-size="8.5" fill="#94a3b8">Full message log per session (SQLite)</text>
+  <text x="524" y="417" font-size="8.5" fill="#94a3b8">Rolling LLM summary (gpt-4o-mini)</text>
+  <text x="524" y="430" font-size="8.5" fill="#94a3b8">Incremental: only new turns summarised</text>
+  <text x="524" y="443" font-size="8.5" fill="#94a3b8">Coordinator injects summary + recent turns</text>
+  <text x="524" y="455" font-size="8" fill="#4b5563">store: SQLite conversations + conversation_summaries</text>
+
+  <!-- 5. Entity Memory -->
+  <rect x="510" y="478" width="228" height="72" rx="10" fill="#1a1f35" stroke="#f59e0b40" stroke-width="1.2"/>
+  <rect x="510" y="478" width="228" height="20" rx="10" fill="#f59e0b20"/>
+  <rect x="510" y="488" width="228" height="10" rx="0" fill="#f59e0b20"/>
+  <text x="524" y="492" font-size="9.5" font-weight="700" fill="#fcd34d">🏷️  Entity Memory</text>
+  <text x="524" y="506" font-size="8.5" fill="#94a3b8">Structured extraction from user brief</text>
+  <text x="524" y="519" font-size="8.5" fill="#94a3b8">product · campaign_goal · target_audience</text>
+  <text x="524" y="532" font-size="8.5" fill="#94a3b8">tone · platforms  (upserted per run)</text>
+  <text x="524" y="542" font-size="8" fill="#4b5563">store: SQLite entities table</text>
+
+  <!-- 6. Procedural Memory -->
+  <rect x="510" y="564" width="228" height="76" rx="10" fill="#1a1f35" stroke="#ef444440" stroke-width="1.2"/>
+  <rect x="510" y="564" width="228" height="20" rx="10" fill="#ef444420"/>
+  <rect x="510" y="574" width="228" height="10" rx="0" fill="#ef444420"/>
+  <text x="524" y="578" font-size="9.5" font-weight="700" fill="#fca5a5">📜  Procedural Memory</text>
+  <text x="524" y="592" font-size="8.5" fill="#94a3b8">Standard Operating Procedures (SOPs)</text>
+  <text x="524" y="605" font-size="8.5" fill="#94a3b8">Campaign planning · content quality review</text>
+  <text x="524" y="618" font-size="8.5" fill="#94a3b8">Ad copywriting · publishing workflow</text>
+  <text x="524" y="630" font-size="8" fill="#4b5563">store: ChromaDB "procedures"  ·  seeded once</text>
+
+  <!-- Learning Loop box -->
+  <rect x="510" y="656" width="228" height="84" rx="10" fill="#111827" stroke="#6366f150" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="624" y="674" text-anchor="middle" font-size="9.5" font-weight="700" fill="#a5b4fc">🔄  Learning Loop</text>
+  <text x="524" y="690" font-size="8.5" fill="#94a3b8">Publisher → stores episode (score + tone)</text>
+  <text x="524" y="703" font-size="8.5" fill="#94a3b8">Coordinator → extract_campaign_lessons()</text>
+  <text x="524" y="716" font-size="8.5" fill="#a5b4fc">Next run: best_tones · avoid_tones injected</text>
+  <text x="524" y="729" font-size="8.5" fill="#a5b4fc">into Strategist + Content Writer prompts</text>
+
+  <!-- SQLite summary -->
+  <rect x="510" y="754" width="228" height="62" rx="10" fill="#1a1f35" stroke="#374151" stroke-width="1"/>
+  <text x="524" y="770" font-size="9.5" font-weight="700" fill="#94a3b8">SQLite — campaign_agent.db</text>
+  <text x="524" y="784" font-size="8.5" fill="#6b7280">campaigns · conversations</text>
+  <text x="524" y="797" font-size="8.5" fill="#6b7280">conversation_summaries · entities</text>
+  <text x="524" y="810" font-size="8.5" fill="#6b7280">performance_metrics</text>
+
+  <!-- ChromaDB summary -->
+  <rect x="510" y="828" width="228" height="52" rx="10" fill="#1a1f35" stroke="#374151" stroke-width="1"/>
+  <text x="524" y="844" font-size="9.5" font-weight="700" fill="#94a3b8">ChromaDB — chroma_db/</text>
+  <text x="524" y="858" font-size="8.5" fill="#6b7280">episodes · knowledge · procedures</text>
+  <text x="524" y="871" font-size="8.5" fill="#6b7280">sentence-transformers embeddings</text>
+
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- TOOLS & LLMs                                             -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- OpenAI -->
+  <rect x="786" y="108" width="190" height="116" rx="10" fill="#1a1f35" stroke="#10b98140" stroke-width="1.2"/>
+  <text x="881" y="126" text-anchor="middle" font-size="10" font-weight="700" fill="#e2e8f0">🤖  OpenAI API</text>
+  <text x="800" y="142" font-size="8.5" fill="#6b7280">GPT-4o (temp=0.1–0.7)</text>
+  <text x="800" y="155" font-size="8.5" fill="#94a3b8">  Coordinator · Strategist</text>
+  <text x="800" y="168" font-size="8.5" fill="#94a3b8">  Content Writer · Critic</text>
+  <text x="800" y="181" font-size="8.5" fill="#94a3b8">  Conv Summariser</text>
+  <text x="800" y="194" font-size="8.5" fill="#6b7280">GPT-4o-mini (cost-efficient)</text>
+  <text x="800" y="207" font-size="8.5" fill="#94a3b8">  Researcher · Targeting</text>
+  <text x="800" y="218" font-size="8" fill="#4b5563">LangChain ChatOpenAI wrapper</text>
+
+  <!-- Tavily -->
+  <rect x="786" y="238" width="190" height="84" rx="10" fill="#1a1f35" stroke="#06b6d440" stroke-width="1.2"/>
+  <text x="881" y="256" text-anchor="middle" font-size="10" font-weight="700" fill="#67e8f9">🔎  Tavily Search</text>
+  <text x="800" y="272" font-size="8.5" fill="#94a3b8">web_search — general queries</text>
+  <text x="800" y="285" font-size="8.5" fill="#94a3b8">competitive_research — rival analysis</text>
+  <text x="800" y="298" font-size="8.5" fill="#94a3b8">product_url site-targeted search</text>
+  <text x="800" y="311" font-size="8.5" fill="#94a3b8">12s timeout circuit breaker</text>
+  <text x="800" y="320" font-size="8" fill="#4b5563">ThreadPoolExecutor isolation</text>
+
+  <!-- Buffer Tool -->
+  <rect x="786" y="336" width="190" height="90" rx="10" fill="#1a1f35" stroke="#3b82f640" stroke-width="1.2"/>
+  <text x="881" y="354" text-anchor="middle" font-size="10" font-weight="700" fill="#93c5fd">📤  Buffer Tool</text>
+  <text x="800" y="370" font-size="8.5" fill="#94a3b8">GraphQL API — httpx client</text>
+  <text x="800" y="383" font-size="8.5" fill="#94a3b8">schedule_via_buffer() core impl</text>
+  <text x="800" y="396" font-size="8.5" fill="#94a3b8">Modes: shareNow / customScheduled</text>
+  <text x="800" y="409" font-size="8.5" fill="#94a3b8">Twitter: auto-truncate to 260 chars</text>
+  <text x="800" y="418" font-size="8" fill="#4b5563">Channels: LinkedIn + X/Twitter</text>
+
+  <!-- State / Session -->
+  <rect x="786" y="440" width="190" height="62" rx="10" fill="#1a1f35" stroke="#37415180" stroke-width="1"/>
+  <text x="881" y="457" text-anchor="middle" font-size="10" font-weight="700" fill="#94a3b8">⚙️  Session State</text>
+  <text x="800" y="472" font-size="8.5" fill="#6b7280">_sessions: dict (RAM cache)</text>
+  <text x="800" y="485" font-size="8.5" fill="#6b7280">_event_queues: asyncio.Queue</text>
+  <text x="800" y="495" font-size="8" fill="#4b5563">3h TTL eviction · SQLite fallback</text>
+
+  <!-- ── DATABASES panel ── -->
+  <rect x="786" y="560" width="190" height="78" rx="10" fill="#1a1f35" stroke="#37415180" stroke-width="1"/>
+  <text x="881" y="578" text-anchor="middle" font-size="10" font-weight="700" fill="#94a3b8">🗄️  SQLite</text>
+  <text x="800" y="593" font-size="8" fill="#6b7280">campaigns</text>
+  <text x="800" y="606" font-size="8" fill="#6b7280">conversations · conversation_summaries</text>
+  <text x="800" y="619" font-size="8" fill="#6b7280">entities · performance_metrics</text>
+  <text x="800" y="630" font-size="8" fill="#4b5563">persists across restarts</text>
+
+  <rect x="786" y="652" width="190" height="66" rx="10" fill="#1a1f35" stroke="#37415180" stroke-width="1"/>
+  <text x="881" y="670" text-anchor="middle" font-size="10" font-weight="700" fill="#94a3b8">🔵  ChromaDB</text>
+  <text x="800" y="685" font-size="8" fill="#6b7280">episodes (episodic)</text>
+  <text x="800" y="698" font-size="8" fill="#6b7280">knowledge (semantic)</text>
+  <text x="800" y="711" font-size="8" fill="#6b7280">procedures (procedural)</text>
+
+  <rect x="786" y="732" width="190" height="50" rx="10" fill="#1a1f35" stroke="#37415180" stroke-width="1"/>
+  <text x="881" y="750" text-anchor="middle" font-size="10" font-weight="700" fill="#94a3b8">📡  SSE Stream</text>
+  <text x="800" y="765" font-size="8" fill="#6b7280">agent_event · complete · error</text>
+  <text x="800" y="774" font-size="8" fill="#4b5563">EventSourceResponse (sse-starlette)</text>
+
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- EXTERNAL SERVICES                                         -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- CampaignState detail -->
+  <rect x="1024" y="108" width="424" height="228" rx="12" fill="#1a1f35" stroke="#6366f140" stroke-width="1.5"/>
+  <text x="1236" y="128" text-anchor="middle" font-size="10.5" font-weight="700" fill="#a5b4fc">⚡ CampaignState — Working Memory (TypedDict)</text>
+  <!-- Left col -->
+  <text x="1038" y="148" font-size="8.5" fill="#818cf8" font-weight="600">USER INPUTS</text>
+  <text x="1038" y="162" font-size="8" fill="#94a3b8">session_id · product_name · product_description</text>
+  <text x="1038" y="175" font-size="8" fill="#94a3b8">product_url · usp · cta_goal · cta_link</text>
+  <text x="1038" y="188" font-size="8" fill="#94a3b8">campaign_goal · target_audience · tone</text>
+  <text x="1038" y="201" font-size="8" fill="#94a3b8">platforms · publish_mode · schedule_cadence · custom_cadence</text>
+  <text x="1038" y="220" font-size="8.5" fill="#818cf8" font-weight="600">AGENT OUTPUTS</text>
+  <text x="1038" y="234" font-size="8" fill="#94a3b8">task_plan · coordinator_notes · research_findings</text>
+  <text x="1038" y="247" font-size="8" fill="#94a3b8">campaign_plan · ad_variants · audience_segments</text>
+  <text x="1038" y="260" font-size="8" fill="#94a3b8">critic_score · publish_result · status · error</text>
+  <text x="1038" y="279" font-size="8.5" fill="#818cf8" font-weight="600">MEMORY CONTEXT</text>
+  <text x="1038" y="293" font-size="8" fill="#94a3b8">episodic_context · campaign_lessons · semantic_context</text>
+  <text x="1038" y="306" font-size="8" fill="#94a3b8">procedural_context · entities · messages · events[]</text>
+  <text x="1038" y="322" font-size="8" fill="#6b7280">revision_count · max_revisions(3) · campaign_lessons{best_tones,avoid_tones,top_pillars}</text>
+
+  <!-- Buffer / LinkedIn / Twitter -->
+  <rect x="1024" y="352" width="200" height="108" rx="12" fill="#1a1f35" stroke="#3b82f640" stroke-width="1.5"/>
+  <text x="1124" y="372" text-anchor="middle" font-size="10.5" font-weight="700" fill="#93c5fd">📤  Buffer</text>
+  <text x="1038" y="390" font-size="8.5" fill="#94a3b8">GraphQL endpoint: publish.buffer.com</text>
+  <text x="1038" y="403" font-size="8.5" fill="#94a3b8">Channels: BUFFER_LINKEDIN_CHANNEL_ID</text>
+  <text x="1038" y="416" font-size="8.5" fill="#94a3b8">         BUFFER_TWITTER_CHANNEL_ID</text>
+  <text x="1038" y="429" font-size="8.5" fill="#94a3b8">Auth: Bearer BUFFER_ACCESS_TOKEN</text>
+  <text x="1038" y="442" font-size="8.5" fill="#94a3b8">Returns: update_ids per platform</text>
+  <text x="1038" y="452" font-size="8" fill="#4b5563">org_id cached · httpx Timeout(30s)</text>
+
+  <!-- LinkedIn -->
+  <rect x="1024" y="474" width="90" height="60" rx="10" fill="#1a1f35" stroke="#0077b540" stroke-width="1.2"/>
+  <text x="1069" y="494" text-anchor="middle" font-size="11">💼</text>
+  <text x="1069" y="510" text-anchor="middle" font-size="9" font-weight="600" fill="#60a5fa">LinkedIn</text>
+  <text x="1069" y="524" text-anchor="middle" font-size="8" fill="#6b7280">Company Page</text>
+
+  <!-- Twitter -->
+  <rect x="1128" y="474" width="90" height="60" rx="10" fill="#1a1f35" stroke="#1d9bf040" stroke-width="1.2"/>
+  <text x="1173" y="494" text-anchor="middle" font-size="12" fill="#94a3b8" font-weight="900">𝕏</text>
+  <text x="1173" y="510" text-anchor="middle" font-size="9" font-weight="600" fill="#60a5fa">X / Twitter</text>
+  <text x="1173" y="524" text-anchor="middle" font-size="8" fill="#6b7280">@siddarth1289300</text>
+
+  <!-- Publish modes -->
+  <rect x="1240" y="352" width="208" height="182" rx="12" fill="#1a1f35" stroke="#37415180" stroke-width="1"/>
+  <text x="1344" y="372" text-anchor="middle" font-size="10" font-weight="700" fill="#94a3b8">Publishing Config</text>
+  <text x="1254" y="390" font-size="8.5" font-weight="600" fill="#6b7280">PUBLISH MODES</text>
+  <text x="1254" y="404" font-size="8.5" fill="#94a3b8">now — all posts live immediately</text>
+  <text x="1254" y="417" font-size="8.5" fill="#94a3b8">scheduled — space by cadence</text>
+  <text x="1254" y="430" font-size="8.5" fill="#94a3b8">both — first live, rest scheduled</text>
+  <text x="1254" y="448" font-size="8.5" font-weight="600" fill="#6b7280">CADENCES</text>
+  <text x="1254" y="462" font-size="8.5" fill="#94a3b8">daily_1 — 24h apart</text>
+  <text x="1254" y="475" font-size="8.5" fill="#94a3b8">daily_2 — 12h apart (2/day)</text>
+  <text x="1254" y="488" font-size="8.5" fill="#94a3b8">weekly — 168h apart</text>
+  <text x="1254" y="501" font-size="8.5" fill="#94a3b8">custom — free-text description</text>
+  <text x="1254" y="519" font-size="8" fill="#4b5563">interval_hours × variant_index = scheduled_at</text>
+
+  <!-- Agent data flow -->
+  <rect x="1024" y="550" width="424" height="168" rx="12" fill="#1a1f35" stroke="#37415180" stroke-width="1"/>
+  <text x="1236" y="570" text-anchor="middle" font-size="10.5" font-weight="700" fill="#94a3b8">Agent Data Flow</text>
+  <text x="1038" y="590" font-size="8.5" fill="#6b7280" font-weight="600">AGENT</text>
+  <text x="1160" y="590" font-size="8.5" fill="#6b7280" font-weight="600">READS</text>
+  <text x="1310" y="590" font-size="8.5" fill="#6b7280" font-weight="600">WRITES</text>
+  <line x1="1038" y1="594" x2="1440" y2="594" stroke="#1f2937" stroke-width="1"/>
+  <text x="1038" y="608" font-size="8" fill="#a5b4fc">Coordinator</text>
+  <text x="1160" y="608" font-size="8" fill="#94a3b8">episodic,semantic,procedural,entity,conv</text>
+  <text x="1310" y="608" font-size="8" fill="#94a3b8">task_plan,entities,lessons</text>
+  <text x="1038" y="622" font-size="8" fill="#c4b5fd">Strategist</text>
+  <text x="1160" y="622" font-size="8" fill="#94a3b8">procedural,semantic,lessons</text>
+  <text x="1310" y="622" font-size="8" fill="#94a3b8">campaign_plan</text>
+  <text x="1038" y="636" font-size="8" fill="#67e8f9">Researcher</text>
+  <text x="1160" y="636" font-size="8" fill="#94a3b8">Tavily API,product_url</text>
+  <text x="1310" y="636" font-size="8" fill="#94a3b8">research_findings</text>
+  <text x="1038" y="650" font-size="8" fill="#6ee7b7">Content Writer</text>
+  <text x="1160" y="650" font-size="8" fill="#94a3b8">semantic,procedural,lessons,critic_fb</text>
+  <text x="1310" y="650" font-size="8" fill="#94a3b8">ad_variants</text>
+  <text x="1038" y="664" font-size="8" fill="#fcd34d">Targeting</text>
+  <text x="1160" y="664" font-size="8" fill="#94a3b8">semantic,conv_context,research</text>
+  <text x="1310" y="664" font-size="8" fill="#94a3b8">audience_segments</text>
+  <text x="1038" y="678" font-size="8" fill="#fca5a5">Critic</text>
+  <text x="1160" y="678" font-size="8" fill="#94a3b8">procedural SOPs,ad_variants</text>
+  <text x="1310" y="678" font-size="8" fill="#94a3b8">critic_score → revise/publish</text>
+  <text x="1038" y="692" font-size="8" fill="#93c5fd">Publisher</text>
+  <text x="1160" y="692" font-size="8" fill="#94a3b8">Buffer API,publish_mode,cadence</text>
+  <text x="1310" y="692" font-size="8" fill="#94a3b8">publish_result,episodic store</text>
+  <line x1="1038" y1="698" x2="1440" y2="698" stroke="#1f2937" stroke-width="1"/>
+  <text x="1236" y="710" text-anchor="middle" font-size="7.5" fill="#4b5563">* All agents emit events[] → SSE queue → Frontend AgentFeed</text>
+
+  <!-- Critic loop visualization -->
+  <rect x="1024" y="734" width="424" height="84" rx="12" fill="#1a1f35" stroke="#ef444430" stroke-width="1.2" stroke-dasharray="5,3"/>
+  <text x="1236" y="754" text-anchor="middle" font-size="10" font-weight="700" fill="#fca5a5">⚖️  Critic Quality Loop</text>
+  <text x="1038" y="772" font-size="8.5" fill="#94a3b8">Content Writer → Critic: score dimensions (engagement · brand · compliance · clarity · resonance)</text>
+  <text x="1038" y="787" font-size="8.5" fill="#fca5a5">score &lt; 0.80 AND revisions &lt; 3  →  loop back to Content Writer with specific feedback</text>
+  <text x="1038" y="800" font-size="8.5" fill="#10b981">score ≥ 0.80 OR revisions = 3      →  force pass → Publisher</text>
+  <text x="1038" y="813" font-size="7.5" fill="#4b5563">revision_count tracked in CampaignState; prevents infinite loops; max_revisions default = 3</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ARROWS / CONNECTIONS                                      -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- User → Campaign Form -->
+  <line x1="114" y1="160" x2="114" y2="204" stroke="#4b5563" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- Campaign Form → FastAPI (POST /run) -->
+  <line x1="190" y1="233" x2="228" y2="233" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrow-indigo)"/>
+  <text x="208" y="228" text-anchor="middle" font-size="7.5" fill="#818cf8">POST</text>
+
+  <!-- FastAPI → Coordinator arrow implied by Campaign Form → pipeline top -->
+
+  <!-- Agent Feed ← SSE -->
+  <line x1="190" y1="300" x2="228" y2="300" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <text x="209" y="295" text-anchor="middle" font-size="7.5" fill="#818cf8">SSE</text>
+
+  <!-- Memory explorer ← API -->
+  <line x1="190" y1="449" x2="510" y2="449" stroke="#374151" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrow)"/>
+  <text x="350" y="444" text-anchor="middle" font-size="7.5" fill="#4b5563">GET /api/memory/{id}</text>
+
+  <!-- Coordinator ↔ Memory systems -->
+  <line x1="462" y1="172" x2="510" y2="172" stroke="#6366f180" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrow-indigo)"/>
+  <line x1="462" y1="228" x2="510" y2="228" stroke="#8b5cf680" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrow-purple)"/>
+
+  <!-- Researcher ↔ Tools -->
+  <line x1="462" y1="378" x2="786" y2="310" stroke="#06b6d450" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrow-cyan)"/>
+
+  <!-- Publisher → Buffer -->
+  <line x1="462" y1="800" x2="786" y2="400" stroke="#3b82f650" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrow-blue)"/>
+
+  <!-- Publisher → Episodic -->
+  <line x1="462" y1="838" x2="510" y2="838" stroke="#8b5cf680" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrow-purple)"/>
+  <text x="486" y="832" text-anchor="middle" font-size="7.5" fill="#8b5cf6">write</text>
+
+  <!-- Buffer → LinkedIn/Twitter (external services) -->
+  <line x1="1024" y1="406" x2="1224" y2="406" stroke="#3b82f640" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <!-- CampaignState arrow from pipeline to external -->
+  <line x1="462" y1="155" x2="1024" y2="220" stroke="#6366f130" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- LEGEND                                                    -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="1024" y="838" width="424" height="100" rx="10" fill="#111827" stroke="#1f2937"/>
+  <text x="1044" y="856" font-size="9" font-weight="600" fill="#6b7280">LEGEND</text>
+  <line x1="1044" y1="868" x2="1078" y2="868" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="1082" y="871" font-size="8.5" fill="#94a3b8">API call / SSE stream</text>
+  <line x1="1044" y1="883" x2="1078" y2="883" stroke="#4b5563" stroke-width="1.5"/>
+  <text x="1082" y="886" font-size="8.5" fill="#94a3b8">LangGraph edge (state transition)</text>
+  <line x1="1044" y1="898" x2="1078" y2="898" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="1082" y="901" font-size="8.5" fill="#94a3b8">Critic revision loop</text>
+  <line x1="1044" y1="913" x2="1078" y2="913" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="1082" y="916" font-size="8.5" fill="#94a3b8">Memory read/write</text>
+  <rect x="1200" y="858" width="12" height="12" rx="3" fill="#6366f120" stroke="#6366f150"/>
+  <text x="1216" y="869" font-size="8.5" fill="#94a3b8">GPT-4o agent</text>
+  <rect x="1200" y="876" width="12" height="12" rx="3" fill="#06b6d420" stroke="#06b6d450"/>
+  <text x="1216" y="887" font-size="8.5" fill="#94a3b8">GPT-4o-mini agent</text>
+  <rect x="1200" y="894" width="12" height="12" rx="3" fill="#3b82f620" stroke="#3b82f650"/>
+  <text x="1216" y="905" font-size="8.5" fill="#94a3b8">External tool / API</text>
+  <rect x="1200" y="912" width="12" height="12" rx="3" fill="#8b5cf620" stroke="#8b5cf650" stroke-dasharray="3,2"/>
+  <text x="1216" y="923" font-size="8.5" fill="#94a3b8">ChromaDB (vector)</text>
+  <text x="1350" y="870" font-size="8.5" fill="#94a3b8">SQLite: structured/persisted</text>
+  <text x="1350" y="884" font-size="8.5" fill="#94a3b8">ChromaDB: vector similarity</text>
+  <text x="1350" y="898" font-size="8.5" fill="#94a3b8">LangGraph: stateful orchestration</text>
+  <text x="1350" y="912" font-size="8.5" fill="#94a3b8">FastAPI: async REST + SSE</text>
+</svg>

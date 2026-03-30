@@ -1,5 +1,5 @@
 """
-Orchestrator Agent — GPT-4o
+Coordinator Agent — GPT-4o
 
 Responsibilities:
   1. Load all relevant memories into state (episodic, semantic, procedural, entity).
@@ -22,7 +22,7 @@ from memory.episodic import extract_campaign_lessons
 
 _llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
 
-_SYSTEM = """You are the Orchestrator of an autonomous marketing campaign AI system.
+_SYSTEM = """You are the Coordinator of an autonomous marketing campaign AI system.
 Your role is to:
 1. Analyse the user's campaign brief.
 2. Create a clear, ordered task plan for the campaign agents.
@@ -31,7 +31,7 @@ Your role is to:
 Respond with a JSON object:
 {{
   "task_plan": ["step 1", "step 2", ...],
-  "notes": "brief orchestrator commentary",
+  "notes": "brief coordinator commentary",
   "entities": {{
     "brand": "...",
     "product": "...",
@@ -41,7 +41,7 @@ Respond with a JSON object:
 """
 
 
-def orchestrator_node(state: CampaignState) -> dict:
+def coordinator_node(state: CampaignState) -> dict:
     """LangGraph node: loads memory, creates task plan, seeds entity store."""
     session_id = state["session_id"]
 
@@ -116,7 +116,7 @@ def orchestrator_node(state: CampaignState) -> dict:
     event = {
         "id": str(uuid.uuid4()),
         "timestamp": datetime.utcnow().isoformat(),
-        "agent": "orchestrator",
+        "agent": "coordinator",
         "type": "analysis",
         "title": "Campaign Brief Analysed",
         "content": (
@@ -127,11 +127,11 @@ def orchestrator_node(state: CampaignState) -> dict:
         "data": {"lessons": lessons},
     }
 
-    save_message(session_id, "assistant", f"Orchestrator: {notes}")
+    save_message(session_id, "assistant", f"Coordinator: {notes}")
 
     return {
         "task_plan": task_plan,
-        "orchestrator_notes": notes,
+        "coordinator_notes": notes,
         "episodic_context": mem_ctx["episodic_context"],
         "campaign_lessons": lessons,
         "semantic_context": mem_ctx["semantic_context"],

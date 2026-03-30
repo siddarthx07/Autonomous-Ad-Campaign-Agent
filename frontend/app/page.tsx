@@ -6,8 +6,8 @@ import { BACKEND_URL } from "@/lib/utils";
 import type { CampaignSession } from "@/lib/types";
 
 const AGENT_NODES = [
-  { id: "orchestrator", label: "Orchestrator", abbr: "ORC", color: "#2563eb" },
-  { id: "planner", label: "Planning Agent", abbr: "PLN", color: "#0891b2" },
+  { id: "coordinator", label: "Coordinator", abbr: "CRD", color: "#2563eb" },
+  { id: "strategist", label: "Campaign Strategist", abbr: "STR", color: "#0891b2" },
   { id: "researcher", label: "Research Agent", abbr: "RES", color: "#0d9488" },
   { id: "content_writer", label: "Content Writer", abbr: "CW", color: "#16a34a" },
   { id: "targeting", label: "Targeting Agent", abbr: "TGT", color: "#d97706" },

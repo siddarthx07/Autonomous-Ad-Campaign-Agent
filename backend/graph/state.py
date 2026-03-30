@@ -68,9 +68,9 @@ class CampaignState(TypedDict):
     # ── Conversation history (persisted to SQLite) ────────────────
     messages: list[dict[str, str]]   # {"role": "user"|"assistant", "content": "..."}
 
-    # ── Orchestrator outputs ──────────────────────────────────────
-    task_plan: list[str]             # ordered steps decided by orchestrator
-    orchestrator_notes: str
+    # ── Coordinator outputs ───────────────────────────────────────
+    task_plan: list[str]             # ordered steps decided by coordinator
+    coordinator_notes: str
 
     # ── Memory context injected at runtime ───────────────────────
     episodic_context: str            # similar past campaigns (raw)

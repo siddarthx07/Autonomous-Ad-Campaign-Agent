@@ -55,3 +55,7 @@ htmlcov/
 *.tmp
 
 client_secrets.json
+
+system-design-hl.svg
+system-design.html
+system-design.svg

@@ -87,8 +87,8 @@ export interface MemorySnapshot {
 }
 
 export const AGENT_COLORS: Record<string, string> = {
-  orchestrator: "#2563eb",
-  planner: "#0891b2",
+  coordinator: "#2563eb",
+  strategist: "#0891b2",
   researcher: "#0d9488",
   content_writer: "#16a34a",
   targeting: "#d97706",
@@ -97,8 +97,8 @@ export const AGENT_COLORS: Record<string, string> = {
 };
 
 export const AGENT_LABELS: Record<string, string> = {
-  orchestrator: "ORC",
-  planner: "PLN",
+  coordinator: "CRD",
+  strategist: "STR",
   researcher: "RES",
   content_writer: "CW",
   targeting: "TGT",

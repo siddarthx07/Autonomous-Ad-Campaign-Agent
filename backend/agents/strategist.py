@@ -1,5 +1,5 @@
 """
-Planning Agent — GPT-4o
+Campaign Strategist Agent — GPT-4o
 
 Generates a full campaign strategy:
   - Objectives and KPIs
@@ -38,7 +38,7 @@ Respond with a JSON object:
 """
 
 
-def planner_node(state: CampaignState) -> dict:
+def strategist_node(state: CampaignState) -> dict:
     """LangGraph node: generates structured campaign plan."""
 
     # Pull procedural SOPs relevant to campaign planning
@@ -83,7 +83,7 @@ def planner_node(state: CampaignState) -> dict:
     event = {
         "id": str(uuid.uuid4()),
         "timestamp": datetime.utcnow().isoformat(),
-        "agent": "planner",
+        "agent": "strategist",
         "type": "strategy",
         "title": "Campaign Strategy Created",
         "content": (

@@ -15,7 +15,7 @@ User Brief
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    LangGraph Campaign Graph                         │
 │                                                                     │
-│  Orchestrator → Planner → Researcher → Content Writer → Targeting  │
+│  Coordinator → Campaign Strategist → Researcher → Content Writer → Targeting │
 │      (GPT-4o)    (GPT-4o)  (GPT-4o-mini   (GPT-4o)    (GPT-4o-mini │
 │                             + Tavily)                               │
 │                                                ↓                   │
@@ -45,8 +45,8 @@ User Brief
 
 | Agent | Model | Responsibility |
 |---|---|---|
-| **Orchestrator** | GPT-4o | Parses brief, loads all memory, creates task plan |
-| **Planning Agent** | GPT-4o | Campaign strategy, KPIs, messaging pillars |
+| **Coordinator** | GPT-4o | Parses brief, loads all memory, creates task plan |
+| **Campaign Strategist** | GPT-4o | Campaign strategy, KPIs, messaging pillars |
 | **Research Agent** | GPT-4o-mini | Tavily web search, competitor analysis, audience insights |
 | **Content Writer** | GPT-4o | 3 ad variants per platform (AIDA framework) |
 | **Targeting Agent** | GPT-4o-mini | LinkedIn audience segments, seniority, industries, geo |
@@ -200,7 +200,7 @@ curl -N http://localhost:8000/api/campaign/stream?session_id=a1b2c3d4-...
 Each event:
 ```
 event: agent_event
-data: {"type":"agent_event","node":"planner","event":{"agent":"planner","title":"Campaign Strategy Created","content":"...","memory_reads":["procedural","semantic"]}}
+data: {"type":"agent_event","node":"strategist","event":{"agent":"strategist","title":"Campaign Strategy Created","content":"...","memory_reads":["procedural","semantic"]}}
 
 event: complete
 data: {"type":"complete","status":"published","publish_result":{...}}
@@ -231,8 +231,8 @@ Multi-agent/
 │   │   ├── state.py               # CampaignState TypedDict
 │   │   └── campaign_graph.py      # LangGraph graph
 │   ├── agents/
-│   │   ├── orchestrator.py        # GPT-4o, memory loader
-│   │   ├── planner.py             # Campaign strategy
+│   │   ├── coordinator.py         # GPT-4o, memory loader
+│   │   ├── strategist.py          # Campaign strategy
 │   │   ├── researcher.py          # Tavily web search
 │   │   ├── content_writer.py      # Ad copy generation
 │   │   ├── targeting.py           # Audience segments
