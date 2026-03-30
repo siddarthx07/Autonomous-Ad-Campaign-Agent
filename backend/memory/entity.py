@@ -2,7 +2,7 @@
 Entity Memory — SQLite `entities` table.
 
 Structured store of named entities extracted from conversations:
-brands, products, personas, tones, budgets. Deduped by type + name.
+brands, products, personas, tones. Deduped by type + name.
 Provides persistence across sessions so the agent remembers known entities.
 """
 from __future__ import annotations
@@ -28,7 +28,7 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
         CREATE TABLE IF NOT EXISTS entities (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id  TEXT NOT NULL,
-            entity_type TEXT NOT NULL,   -- brand | product | persona | tone | budget | platform
+            entity_type TEXT NOT NULL,   -- brand | product | persona | tone | platform
             name        TEXT NOT NULL,
             attributes  TEXT,            -- JSON blob of extra attributes
             created_at  TEXT NOT NULL

@@ -17,21 +17,21 @@ const PLATFORM_CONFIG: Record<
 > = {
   linkedin_post: {
     label: "LinkedIn Post",
-    icon: "💼",
-    color: "#0077b5",
-    bg: "#0077b510",
+    icon: "LI",
+    color: "#0369a1",
+    bg: "#e0f2fe",
   },
   linkedin_ad: {
     label: "LinkedIn Ad",
-    icon: "📣",
-    color: "#00a0dc",
-    bg: "#00a0dc10",
+    icon: "AD",
+    color: "#0284c7",
+    bg: "#e0f2fe",
   },
   buffer: {
     label: "Buffer Post",
-    icon: "📅",
-    color: "#168eea",
-    bg: "#168eea10",
+    icon: "BUF",
+    color: "#0891b2",
+    bg: "#ecfeff",
   },
 };
 
@@ -68,9 +68,9 @@ export default function CampaignPreview({
             style={
               section === s.id
                 ? {
-                    background: "rgba(99,102,241,0.2)",
-                    borderColor: "#6366f1",
-                    color: "#a5b4fc",
+                    background: "var(--accent-light)",
+                    borderColor: "#bfdbfe",
+                    color: "var(--accent)",
                   }
                 : {
                     background: "transparent",
@@ -107,41 +107,10 @@ export default function CampaignPreview({
                 <ListCard
                   title="Messaging Pillars"
                   items={campaignPlan.messaging_pillars}
-                  color="#8b5cf6"
+                  color="#0284c7"
                 />
               </div>
               <InfoCard title="Timeline" content={campaignPlan.timeline} />
-              <div
-                className="rounded-xl border p-4"
-                style={{
-                  background: "var(--surface)",
-                  borderColor: "var(--border)",
-                }}
-              >
-                <div
-                  className="text-xs font-semibold mb-3"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  Budget Allocation
-                </div>
-                <div className="space-y-2">
-                  {Object.entries(campaignPlan.budget_allocation).map(
-                    ([k, v]) => (
-                      <div key={k} className="flex justify-between">
-                        <span className="text-xs capitalize" style={{ color: "var(--text)" }}>
-                          {k.replace(/_/g, " ")}
-                        </span>
-                        <span
-                          className="text-xs font-mono font-semibold"
-                          style={{ color: "#f59e0b" }}
-                        >
-                          {v}
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
             </>
           ) : (
             <EmptyState msg="Campaign plan not available." />
@@ -208,7 +177,9 @@ function CriticScoreBanner({ score }: { score: CriticScore }) {
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-lg">⚖️</span>
+          <span className="text-[11px] font-mono px-1.5 py-0.5 rounded border" style={{ borderColor: color + "40", color }}>
+            QA
+          </span>
           <span className="text-sm font-semibold" style={{ color }}>
             Critic Score: {pct}%
           </span>
@@ -259,7 +230,7 @@ function CriticScoreBanner({ score }: { score: CriticScore }) {
       {score.feedback && (
         <div
           className="text-xs leading-relaxed p-3 rounded-lg"
-          style={{ background: "rgba(0,0,0,0.2)", color: "var(--text-muted)" }}
+          style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}
         >
           {score.feedback}
         </div>
@@ -271,9 +242,9 @@ function CriticScoreBanner({ score }: { score: CriticScore }) {
 function AdVariantCard({ variant }: { variant: AdVariant }) {
   const cfg = PLATFORM_CONFIG[variant.platform] ?? {
     label: variant.platform,
-    icon: "📄",
-    color: "#6366f1",
-    bg: "#6366f110",
+    icon: "DOC",
+    color: "#2563eb",
+    bg: "#eff6ff",
   };
 
   return (
@@ -282,7 +253,7 @@ function AdVariantCard({ variant }: { variant: AdVariant }) {
       style={{ background: "var(--surface)", borderColor: cfg.color + "40" }}
     >
       <div className="flex items-center gap-2">
-        <span>{cfg.icon}</span>
+        <span className="text-[11px] font-mono px-1.5 py-0.5 rounded border" style={{ borderColor: cfg.color + "40" }}>{cfg.icon}</span>
         <span className="text-xs font-semibold" style={{ color: cfg.color }}>
           {cfg.label}
         </span>
@@ -333,7 +304,7 @@ function AdVariantCard({ variant }: { variant: AdVariant }) {
           className="text-xs p-2 rounded-lg italic"
           style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}
         >
-          🎨 {variant.image_prompt}
+          Image Prompt: {variant.image_prompt}
         </div>
       )}
     </div>
@@ -347,13 +318,13 @@ function AudienceCard({ segment }: { segment: AudienceSegment }) {
       style={{ background: "var(--surface)", borderColor: "var(--border)" }}
     >
       <div className="font-semibold text-sm mb-3" style={{ color: "var(--text)" }}>
-        🎯 {segment.segment_name}
+        Segment: {segment.segment_name}
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <TagGroup label="Seniority" tags={segment.seniority} color="#8b5cf6" />
-        <TagGroup label="Industries" tags={segment.industries} color="#06b6d4" />
-        <TagGroup label="Geography" tags={segment.geo} color="#10b981" />
-        <TagGroup label="Interests" tags={segment.interests} color="#f59e0b" />
+        <TagGroup label="Seniority" tags={segment.seniority} color="#0284c7" />
+        <TagGroup label="Industries" tags={segment.industries} color="#0891b2" />
+        <TagGroup label="Geography" tags={segment.geo} color="#16a34a" />
+        <TagGroup label="Interests" tags={segment.interests} color="#d97706" />
       </div>
     </div>
   );

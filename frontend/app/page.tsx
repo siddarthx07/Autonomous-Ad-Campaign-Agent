@@ -6,22 +6,22 @@ import { BACKEND_URL } from "@/lib/utils";
 import type { CampaignSession } from "@/lib/types";
 
 const AGENT_NODES = [
-  { id: "orchestrator", label: "Orchestrator", icon: "🧠", color: "#6366f1" },
-  { id: "planner", label: "Planning Agent", icon: "📋", color: "#8b5cf6" },
-  { id: "researcher", label: "Research Agent", icon: "🔍", color: "#06b6d4" },
-  { id: "content_writer", label: "Content Writer", icon: "✍️", color: "#10b981" },
-  { id: "targeting", label: "Targeting Agent", icon: "🎯", color: "#f59e0b" },
-  { id: "critic", label: "Critic Agent", icon: "⚖️", color: "#ef4444" },
-  { id: "publisher", label: "Publisher Agent", icon: "🚀", color: "#3b82f6" },
+  { id: "orchestrator", label: "Orchestrator", abbr: "ORC", color: "#2563eb" },
+  { id: "planner", label: "Planning Agent", abbr: "PLN", color: "#0891b2" },
+  { id: "researcher", label: "Research Agent", abbr: "RES", color: "#0d9488" },
+  { id: "content_writer", label: "Content Writer", abbr: "CW", color: "#16a34a" },
+  { id: "targeting", label: "Targeting Agent", abbr: "TGT", color: "#d97706" },
+  { id: "critic", label: "Critic Agent", abbr: "CRT", color: "#dc2626" },
+  { id: "publisher", label: "Publisher Agent", abbr: "PUB", color: "#0369a1" },
 ];
 
 const MEMORY_TYPES = [
-  { id: "working", label: "Working Memory", desc: "LangGraph in-flight state", color: "#6366f1" },
-  { id: "episodic", label: "Episodic Memory", desc: "Past campaign runs", color: "#8b5cf6" },
-  { id: "semantic", label: "Semantic Memory", desc: "Platform knowledge base", color: "#06b6d4" },
-  { id: "conversation", label: "Conversation History", desc: "User ↔ agent messages", color: "#10b981" },
-  { id: "entity", label: "Entity Memory", desc: "Brands, personas, products", color: "#f59e0b" },
-  { id: "procedural", label: "Procedural Memory", desc: "SOPs and workflows", color: "#ef4444" },
+  { id: "working", label: "Working Memory", desc: "LangGraph in-flight state", color: "#2563eb" },
+  { id: "episodic", label: "Episodic Memory", desc: "Past campaign runs", color: "#0891b2" },
+  { id: "semantic", label: "Semantic Memory", desc: "Platform knowledge base", color: "#0d9488" },
+  { id: "conversation", label: "Conversation History", desc: "User and agent messages", color: "#16a34a" },
+  { id: "entity", label: "Entity Memory", desc: "Brands, personas, products", color: "#d97706" },
+  { id: "procedural", label: "Procedural Memory", desc: "SOPs and workflows", color: "#dc2626" },
 ];
 
 export default function Dashboard() {
@@ -37,106 +37,134 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Hero */}
-      <div className="text-center py-8">
+      <div className="text-center py-10 max-w-3xl mx-auto">
         <div
-          className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border mb-4 font-mono"
+          className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border mb-5 font-mono font-medium"
           style={{
             color: "var(--accent)",
-            borderColor: "var(--accent)",
-            background: "rgba(99,102,241,0.1)",
+            borderColor: "#bfdbfe",
+            background: "var(--accent-light)",
           }}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
           Autonomous AI · LangGraph · GPT-4o · 6 Memory Systems
         </div>
-        <h1 className="text-4xl font-bold mb-3" style={{ color: "var(--text)" }}>
+        <h1
+          className="text-4xl font-bold mb-4 tracking-tight"
+          style={{ color: "var(--text)" }}
+        >
           Campaign Agent
         </h1>
-        <p className="text-lg max-w-2xl mx-auto mb-6" style={{ color: "var(--text-muted)" }}>
-          A multi-agent system that runs end-to-end marketing campaigns — from research to publishing
-          — on LinkedIn and Buffer, autonomously.
+        <p
+          className="text-base max-w-xl mx-auto mb-8 leading-relaxed"
+          style={{ color: "var(--text-muted)" }}
+        >
+          A multi-agent system that runs end-to-end marketing campaigns — from
+          research to publishing — on LinkedIn and X, autonomously.
         </p>
         <Link
           href="/campaign/new"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all hover:scale-105"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm text-white transition-all hover:opacity-90"
           style={{
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-            boxShadow: "0 0 30px rgba(99,102,241,0.4)",
+            background: "var(--accent)",
+            boxShadow: "0 1px 3px rgba(37,99,235,0.3), 0 4px 12px rgba(37,99,235,0.15)",
           }}
         >
           Launch New Campaign
-          <span>→</span>
+          <span className="text-base leading-none">→</span>
         </Link>
       </div>
 
       {/* Agent Pipeline */}
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ color: "var(--text-muted)" }}>
+        <h2
+          className="text-xs font-semibold uppercase tracking-widest mb-4"
+          style={{ color: "var(--text-muted)" }}
+        >
           Agent Pipeline
         </h2>
         <div
-          className="rounded-2xl border p-6 overflow-x-auto"
+          className="rounded-xl border p-5 overflow-x-auto"
           style={{ background: "var(--surface)", borderColor: "var(--border)" }}
         >
-          <div className="flex items-center gap-2 min-w-max">
-            {AGENT_NODES.map((node, i) => (
-              <div key={node.id} className="flex items-center gap-2">
-                <div
-                  className="flex flex-col items-center gap-2 px-4 py-3 rounded-xl border"
-                  style={{
-                    borderColor: node.color + "40",
-                    background: node.color + "15",
-                    minWidth: 110,
-                  }}
-                >
-                  <span className="text-2xl">{node.icon}</span>
-                  <span className="text-xs font-medium text-center" style={{ color: node.color }}>
-                    {node.label}
-                  </span>
-                </div>
-                {i < AGENT_NODES.length - 1 && (
-                  <div className="flex flex-col items-center gap-0.5">
+          <div className="flex w-full justify-center">
+            <div className="flex items-center gap-2 min-w-max">
+              {AGENT_NODES.map((node, i) => (
+                <div key={node.id} className="flex items-center gap-2">
+                  <div
+                    className="flex flex-col items-center gap-2 px-4 py-3 rounded-lg border"
+                    style={{
+                      borderColor: node.color + "30",
+                      background: node.color + "0a",
+                      minWidth: 108,
+                    }}
+                  >
                     <div
-                      className="text-lg font-bold"
-                      style={{ color: "var(--text-muted)" }}
+                      className="w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold text-white"
+                      style={{ background: node.color }}
                     >
-                      {i === 5 ? "↺" : "→"}
+                      {node.abbr}
                     </div>
-                    {i === 5 && (
-                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                        if &lt;0.8
-                      </span>
-                    )}
+                    <span
+                      className="text-xs font-medium text-center leading-tight"
+                      style={{ color: node.color }}
+                    >
+                      {node.label}
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
+                  {i < AGENT_NODES.length - 1 && (
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span
+                        className="text-base font-medium"
+                        style={{ color: "var(--border-strong)" }}
+                      >
+                        {i === 5 ? "↺" : "→"}
+                      </span>
+                      {i === 5 && (
+                        <span
+                          className="text-xs"
+                          style={{ color: "var(--text-muted)", fontSize: 10 }}
+                        >
+                          if &lt;0.8
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Memory Architecture */}
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ color: "var(--text-muted)" }}>
+        <h2
+          className="text-xs font-semibold uppercase tracking-widest mb-4"
+          style={{ color: "var(--text-muted)" }}
+        >
           Memory Architecture
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {MEMORY_TYPES.map((mem) => (
             <div
               key={mem.id}
-              className="rounded-xl border p-3"
+              className="rounded-lg border p-3"
               style={{
-                borderColor: mem.color + "40",
-                background: mem.color + "10",
+                borderColor: mem.color + "25",
+                background: mem.color + "06",
               }}
             >
               <div
                 className="w-2 h-2 rounded-full mb-2"
                 style={{ background: mem.color }}
               />
-              <div className="text-xs font-semibold mb-1" style={{ color: mem.color }}>
+              <div
+                className="text-xs font-semibold mb-1"
+                style={{ color: mem.color }}
+              >
                 {mem.label}
               </div>
               <div className="text-xs" style={{ color: "var(--text-muted)" }}>
@@ -149,12 +177,15 @@ export default function Dashboard() {
 
       {/* Recent Campaigns */}
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ color: "var(--text-muted)" }}>
+        <h2
+          className="text-xs font-semibold uppercase tracking-widest mb-4"
+          style={{ color: "var(--text-muted)" }}
+        >
           Recent Campaigns
         </h2>
         {loading ? (
           <div
-            className="rounded-2xl border p-8 text-center"
+            className="rounded-xl border p-8 text-center"
             style={{ background: "var(--surface)", borderColor: "var(--border)" }}
           >
             <div className="text-sm" style={{ color: "var(--text-muted)" }}>
@@ -163,19 +194,21 @@ export default function Dashboard() {
           </div>
         ) : sessions.length === 0 ? (
           <div
-            className="rounded-2xl border p-8 text-center"
+            className="rounded-xl border p-10 text-center"
             style={{ background: "var(--surface)", borderColor: "var(--border)" }}
           >
-            <div className="text-3xl mb-3">🚀</div>
-            <div className="text-sm font-medium mb-1" style={{ color: "var(--text)" }}>
+            <div
+              className="text-sm font-semibold mb-2"
+              style={{ color: "var(--text)" }}
+            >
               No campaigns yet
             </div>
-            <div className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
+            <div className="text-xs mb-5" style={{ color: "var(--text-muted)" }}>
               Launch your first autonomous campaign to see it here.
             </div>
             <Link
               href="/campaign/new"
-              className="text-xs px-4 py-2 rounded-lg font-medium text-white"
+              className="inline-flex items-center gap-1.5 text-xs px-4 py-2 rounded-lg font-semibold text-white"
               style={{ background: "var(--accent)" }}
             >
               Start Campaign
@@ -187,14 +220,32 @@ export default function Dashboard() {
               <Link
                 key={s.session_id}
                 href={`/campaign/${s.session_id}`}
-                className="flex items-center justify-between p-4 rounded-xl border hover:border-indigo-500/50 transition-colors"
+                className="flex items-center justify-between p-4 rounded-xl border transition-all"
                 style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor =
+                    "#bfdbfe";
+                  (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                    "0 1px 6px rgba(0,0,0,0.06)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor =
+                    "var(--border)";
+                  (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                    "none";
+                }}
               >
                 <div>
-                  <div className="font-medium text-sm" style={{ color: "var(--text)" }}>
+                  <div
+                    className="font-medium text-sm"
+                    style={{ color: "var(--text)" }}
+                  >
                     {s.product_name}
                   </div>
-                  <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                  <div
+                    className="text-xs mt-0.5"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     {s.campaign_goal}
                   </div>
                 </div>
@@ -209,16 +260,24 @@ export default function Dashboard() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { color: string; bg: string }> = {
-    published: { color: "#10b981", bg: "rgba(16,185,129,0.1)" },
-    running: { color: "#6366f1", bg: "rgba(99,102,241,0.1)" },
-    failed: { color: "#ef4444", bg: "rgba(239,68,68,0.1)" },
+  const map: Record<string, { color: string; bg: string; border: string }> = {
+    published: { color: "#16a34a", bg: "#f0fdf4", border: "#bbf7d0" },
+    running: { color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe" },
+    failed: { color: "#dc2626", bg: "#fef2f2", border: "#fecaca" },
   };
-  const style = map[status] || { color: "var(--text-muted)", bg: "transparent" };
+  const style = map[status] || {
+    color: "var(--text-muted)",
+    bg: "var(--surface-2)",
+    border: "var(--border)",
+  };
   return (
     <span
-      className="text-xs px-2 py-1 rounded-full border font-medium capitalize"
-      style={{ color: style.color, borderColor: style.color, background: style.bg }}
+      className="text-xs px-2.5 py-1 rounded-full border font-medium capitalize"
+      style={{
+        color: style.color,
+        borderColor: style.border,
+        background: style.bg,
+      }}
     >
       {status}
     </span>

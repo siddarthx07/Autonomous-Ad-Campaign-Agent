@@ -6,7 +6,6 @@ Generates a full campaign strategy:
   - Timeline
   - Platform mix and rationale
   - Messaging pillars
-  - Budget allocation
 """
 from __future__ import annotations
 
@@ -34,11 +33,6 @@ Respond with a JSON object:
   "timeline": "e.g. 4-week sprint: Week 1 launch, Week 2–3 optimise, Week 4 analyse",
   "platforms": ["linkedin", "buffer"],
   "messaging_pillars": ["pillar 1", "pillar 2", "pillar 3"],
-  "budget_allocation": {{
-    "linkedin_ads": "60%",
-    "content_creation": "25%",
-    "tools": "15%"
-  }},
   "strategy_summary": "2-3 sentence overview"
 }}
 """
@@ -51,14 +45,17 @@ def planner_node(state: CampaignState) -> dict:
     sop = retrieve_procedures("campaign planning strategy")
     knowledge = retrieve_knowledge(f"{state['campaign_goal']} campaign strategy LinkedIn")
 
+    lessons = state.get("campaign_lessons") or {}
+    lessons_block = lessons.get("lesson_summary", "No past lessons available.")
+
     prompt = (
         f"Product: {state['product_name']}\n"
         f"Description: {state['product_description']}\n"
         f"Goal: {state['campaign_goal']}\n"
         f"Target Audience: {state['target_audience']}\n"
         f"Tone: {state['tone']}\n"
-        f"Budget: {state['budget']}\n"
         f"Platforms: {', '.join(state['platforms'])}\n\n"
+        f"Learned Lessons From Past Campaigns (use these to guide strategy):\n{lessons_block}\n\n"
         f"Procedural SOP:\n{sop}\n\n"
         f"Platform Knowledge:\n{knowledge}\n\n"
         f"Past Campaign Context:\n{state.get('episodic_context', 'None')}"
@@ -78,7 +75,6 @@ def planner_node(state: CampaignState) -> dict:
         "timeline": parsed.get("timeline", "4-week campaign"),
         "platforms": parsed.get("platforms", state["platforms"]),
         "messaging_pillars": parsed.get("messaging_pillars", ["Value", "Trust", "Action"]),
-        "budget_allocation": parsed.get("budget_allocation", {"linkedin_ads": "70%", "content": "30%"}),
     }
 
     summary = parsed.get("strategy_summary", "Campaign strategy generated.")

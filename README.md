@@ -1,6 +1,6 @@
 # Autonomous Campaign Agent
 
-A fully autonomous multi-agent system that runs social media ad campaigns end-to-end — from brief to published post — using LangGraph, GPT-4o, and real LinkedIn + Buffer APIs.
+A fully autonomous multi-agent system that runs social media ad campaigns end-to-end — from brief to published post — using LangGraph, GPT-4o, and r Buffer APIs(Linkedin, X, etc).
 
 Built as a demo for applied AI agent systems work (planning, memory, tool use, LLM orchestration).
 

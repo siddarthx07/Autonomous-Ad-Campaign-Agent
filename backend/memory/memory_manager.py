@@ -22,6 +22,7 @@ def _get_conn() -> sqlite3.Connection:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     _ensure_conv_schema(conn)
+    _ensure_campaigns_schema(conn)
     return conn
 
 
@@ -41,6 +42,161 @@ def _ensure_conv_schema(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_conv_session ON conversations(session_id)"
     )
     conn.commit()
+
+
+def _ensure_campaigns_schema(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS campaigns (
+            session_id   TEXT PRIMARY KEY,
+            product_name TEXT NOT NULL,
+            campaign_goal TEXT NOT NULL,
+            status       TEXT NOT NULL,
+            created_at   TEXT NOT NULL,
+            state_json   TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS performance_metrics (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id  TEXT NOT NULL,
+            post_id     TEXT NOT NULL,
+            platform    TEXT NOT NULL,
+            clicks      INTEGER DEFAULT 0,
+            impressions INTEGER DEFAULT 0,
+            reach       INTEGER DEFAULT 0,
+            likes       INTEGER DEFAULT 0,
+            comments    INTEGER DEFAULT 0,
+            shares      INTEGER DEFAULT 0,
+            text_preview TEXT,
+            fetched_at  TEXT NOT NULL,
+            UNIQUE(session_id, post_id)
+        )
+        """
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_perf_session ON performance_metrics(session_id)"
+    )
+    conn.commit()
+
+
+def save_campaign_to_db(session_id: str, state: dict) -> None:
+    """Persist a completed campaign state to SQLite so it survives restarts."""
+    conn = _get_conn()
+    try:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO campaigns
+                (session_id, product_name, campaign_goal, status, created_at, state_json)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                session_id,
+                state.get("product_name", ""),
+                state.get("campaign_goal", ""),
+                state.get("status", "unknown"),
+                datetime.utcnow().isoformat(),
+                json.dumps(state),
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def load_campaigns_from_db() -> list[dict]:
+    """Load all persisted campaigns from SQLite (called on server startup)."""
+    conn = _get_conn()
+    try:
+        rows = conn.execute(
+            "SELECT session_id, state_json FROM campaigns ORDER BY created_at DESC"
+        ).fetchall()
+        result = []
+        for row in rows:
+            try:
+                result.append((row["session_id"], json.loads(row["state_json"])))
+            except (json.JSONDecodeError, KeyError):
+                pass
+        return result
+    finally:
+        conn.close()
+
+
+def list_campaigns_summary() -> list[dict]:
+    """Return lightweight summaries of all campaigns for the dashboard."""
+    conn = _get_conn()
+    try:
+        rows = conn.execute(
+            """
+            SELECT session_id, product_name, campaign_goal, status, created_at
+            FROM campaigns
+            ORDER BY created_at DESC
+            """
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def save_performance_metrics(session_id: str, metrics: list[dict]) -> None:
+    """Upsert per-post engagement stats returned from Buffer analytics."""
+    conn = _get_conn()
+    try:
+        for m in metrics:
+            conn.execute(
+                """
+                INSERT INTO performance_metrics
+                    (session_id, post_id, platform, clicks, impressions, reach,
+                     likes, comments, shares, text_preview, fetched_at)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(session_id, post_id) DO UPDATE SET
+                    clicks=excluded.clicks,
+                    impressions=excluded.impressions,
+                    reach=excluded.reach,
+                    likes=excluded.likes,
+                    comments=excluded.comments,
+                    shares=excluded.shares,
+                    text_preview=excluded.text_preview,
+                    fetched_at=excluded.fetched_at
+                """,
+                (
+                    session_id,
+                    m.get("post_id", ""),
+                    m.get("platform", ""),
+                    m.get("clicks", 0),
+                    m.get("impressions", 0),
+                    m.get("reach", 0),
+                    m.get("likes", 0),
+                    m.get("comments", 0),
+                    m.get("shares", 0),
+                    m.get("text_preview", ""),
+                    datetime.utcnow().isoformat(),
+                ),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def load_performance_metrics(session_id: str) -> list[dict]:
+    """Load cached per-post engagement stats for a campaign."""
+    conn = _get_conn()
+    try:
+        rows = conn.execute(
+            """
+            SELECT post_id, platform, clicks, impressions, reach,
+                   likes, comments, shares, text_preview, fetched_at
+            FROM performance_metrics
+            WHERE session_id = ?
+            ORDER BY id ASC
+            """,
+            (session_id,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
 
 
 def save_message(session_id: str, role: str, content: str) -> None:
@@ -108,7 +264,6 @@ class MemoryManager:
         campaign_goal: str,
         target_audience: str,
         tone: str,
-        budget: str,
         platforms: list[str],
     ) -> None:
         """Extract structured entities from user input and persist them."""
@@ -116,7 +271,6 @@ class MemoryManager:
         entity.upsert_entity(session_id, "campaign_goal", campaign_goal)
         entity.upsert_entity(session_id, "target_audience", target_audience)
         entity.upsert_entity(session_id, "tone", tone)
-        entity.upsert_entity(session_id, "budget", budget)
         for p in platforms:
             entity.upsert_entity(session_id, "platform", p)
 

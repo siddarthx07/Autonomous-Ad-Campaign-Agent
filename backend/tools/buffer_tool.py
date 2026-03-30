@@ -160,6 +160,158 @@ def schedule_via_buffer(
     return {"success": True, "updates": results}
 
 
+_BUFFER_ORG_ID: str | None = None
+
+
+def _get_org_id() -> str:
+    """Cache and return the Buffer organisation ID (needed for posts query)."""
+    global _BUFFER_ORG_ID
+    if _BUFFER_ORG_ID:
+        return _BUFFER_ORG_ID
+    try:
+        query = "{ account { currentOrganization { id } } }"
+        resp = httpx.post(_BUFFER_GRAPHQL, headers=_headers(),
+                          json={"query": query},
+                          timeout=httpx.Timeout(connect=5.0, read=10.0, write=5.0, pool=5.0))
+        resp.raise_for_status()
+        _BUFFER_ORG_ID = (
+            resp.json()
+            .get("data", {})
+            .get("account", {})
+            .get("currentOrganization", {})
+            .get("id", "")
+        )
+    except Exception:
+        _BUFFER_ORG_ID = ""
+    return _BUFFER_ORG_ID or ""
+
+
+def fetch_channel_posts(channel_ids: list[str], limit: int = 10) -> list[dict[str, Any]]:
+    """
+    Fetch recent sent posts for one or more Buffer channels.
+
+    NOTE: Buffer's free-tier GraphQL API does NOT expose engagement statistics
+    (clicks, impressions, likes) on the Post type. We return what IS available:
+    post ID, status, text, and sent timestamp.
+    """
+    org_id = _get_org_id()
+    if not org_id:
+        return [{"error": "Could not resolve Buffer organisation ID"}]
+
+    query = """
+    query GetSentPosts($input: PostsInput!, $first: Int) {
+      posts(input: $input, first: $first) {
+        edges {
+          node {
+            id
+            status
+            text
+            sentAt
+            channelService
+          }
+        }
+      }
+    }
+    """
+    variables = {
+        "input": {
+            "organizationId": org_id,
+            "filter": {"channelIds": channel_ids, "status": ["sent"]},
+        },
+        "first": limit,
+    }
+    try:
+        resp = httpx.post(
+            _BUFFER_GRAPHQL,
+            headers=_headers(),
+            json={"query": query, "variables": variables},
+            timeout=httpx.Timeout(connect=5.0, read=15.0, write=5.0, pool=5.0),
+        )
+        resp.raise_for_status()
+        data = resp.json()
+
+        if "errors" in data:
+            return [{"error": data["errors"][0].get("message")}]
+
+        edges = data.get("data", {}).get("posts", {}).get("edges") or []
+        return [
+            {
+                "post_id": (e.get("node") or {}).get("id", ""),
+                "status": (e.get("node") or {}).get("status", "sent"),
+                "text_preview": ((e.get("node") or {}).get("text") or "")[:200],
+                "sent_at": (e.get("node") or {}).get("sentAt", ""),
+                "platform": (e.get("node") or {}).get("channelService", ""),
+                # Engagement stats not available in Buffer free tier
+                "clicks": None,
+                "impressions": None,
+                "reach": None,
+                "likes": None,
+                "comments": None,
+                "shares": None,
+                "stats_available": False,
+            }
+            for e in edges
+            if e.get("node")
+        ]
+    except httpx.HTTPStatusError as exc:
+        return [{"error": f"HTTP {exc.response.status_code}: {exc.response.text[:200]}"}]
+    except Exception as exc:
+        return [{"error": str(exc)}]
+
+
+def fetch_post_analytics(post_id: str) -> dict[str, Any]:
+    """
+    Fetch post metadata for a published Buffer post.
+
+    NOTE: Buffer's free-tier GraphQL API does NOT expose engagement statistics.
+    Returns post metadata only (status, text, sentAt).
+    """
+    query = """
+    query GetPost($input: PostInput!) {
+      post(input: $input) {
+        id
+        status
+        text
+        sentAt
+        channelService
+      }
+    }
+    """
+    try:
+        resp = httpx.post(
+            _BUFFER_GRAPHQL,
+            headers=_headers(),
+            json={"query": query, "variables": {"input": {"id": post_id}}},
+            timeout=httpx.Timeout(connect=5.0, read=10.0, write=5.0, pool=5.0),
+        )
+        resp.raise_for_status()
+        data = resp.json()
+
+        if "errors" in data:
+            return {"post_id": post_id, "error": data["errors"][0].get("message")}
+
+        post = data.get("data", {}).get("post") or {}
+        return {
+            "post_id": post_id,
+            "status": post.get("status", "unknown"),
+            "text_preview": (post.get("text") or "")[:200],
+            "sent_at": post.get("sentAt", ""),
+            "platform": post.get("channelService", ""),
+            # Engagement stats not available in Buffer free tier
+            "clicks": None,
+            "impressions": None,
+            "reach": None,
+            "likes": None,
+            "comments": None,
+            "shares": None,
+            "stats_available": False,
+        }
+    except httpx.HTTPStatusError as exc:
+        return {"post_id": post_id, "error": f"HTTP {exc.response.status_code}"}
+    except Exception as exc:
+        return {"post_id": post_id, "error": str(exc)}
+
+
 # ── LangChain tool wrappers (thin shims over schedule_via_buffer) ─────────────
 
 @tool

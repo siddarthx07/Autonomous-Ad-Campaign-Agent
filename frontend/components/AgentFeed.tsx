@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { AgentEvent } from "@/lib/types";
-import { AGENT_COLORS, AGENT_ICONS } from "@/lib/types";
+import { AGENT_COLORS, AGENT_LABELS } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 interface AgentFeedProps {
@@ -11,22 +11,22 @@ interface AgentFeedProps {
 }
 
 const TYPE_ICONS: Record<string, string> = {
-  analysis: "🧠",
-  strategy: "📋",
-  research: "🔍",
-  content: "✍️",
-  targeting: "🎯",
-  critique: "⚖️",
-  publish: "🚀",
+  analysis: "ANL",
+  strategy: "STR",
+  research: "RSH",
+  content: "CNT",
+  targeting: "TGT",
+  critique: "CRQ",
+  publish: "PUB",
 };
 
 const MEMORY_COLORS: Record<string, string> = {
-  episodic: "#8b5cf6",
-  semantic: "#06b6d4",
-  entity: "#f59e0b",
-  procedural: "#ef4444",
-  working: "#6366f1",
-  conversation: "#10b981",
+  episodic: "#0ea5e9",
+  semantic: "#0891b2",
+  entity: "#d97706",
+  procedural: "#dc2626",
+  working: "#2563eb",
+  conversation: "#16a34a",
 };
 
 export default function AgentFeed({ events, isRunning }: AgentFeedProps) {
@@ -51,7 +51,7 @@ export default function AgentFeed({ events, isRunning }: AgentFeedProps) {
               "w-2 h-2 rounded-full",
               isRunning ? "animate-pulse" : ""
             )}
-            style={{ background: isRunning ? "#6366f1" : "#10b981" }}
+            style={{ background: isRunning ? "var(--accent)" : "var(--success)" }}
           />
           <span className="text-xs font-semibold" style={{ color: "var(--text)" }}>
             Agent Activity
@@ -96,13 +96,13 @@ export default function AgentFeed({ events, isRunning }: AgentFeedProps) {
         {isRunning && events.length > 0 && (
           <div
             className="flex items-center gap-2 px-3 py-2 rounded-lg"
-            style={{ background: "rgba(99,102,241,0.08)" }}
+            style={{ background: "var(--accent-light)" }}
           >
             <div
               className="w-3 h-3 border-2 rounded-full animate-spin flex-shrink-0"
               style={{
-                borderColor: "rgba(99,102,241,0.3)",
-                borderTopColor: "#6366f1",
+                borderColor: "#bfdbfe",
+                borderTopColor: "var(--accent)",
               }}
             />
             <span className="text-xs" style={{ color: "var(--text-muted)" }}>
@@ -119,8 +119,8 @@ export default function AgentFeed({ events, isRunning }: AgentFeedProps) {
 
 function EventCard({ event }: { event: AgentEvent }) {
   const color = AGENT_COLORS[event.agent] ?? "#6b7280";
-  const agentIcon = AGENT_ICONS[event.agent] ?? "•";
-  const typeIcon = TYPE_ICONS[event.type] ?? "•";
+  const agentIcon = AGENT_LABELS[event.agent] ?? "AGN";
+  const typeIcon = TYPE_ICONS[event.type] ?? "EVT";
 
   return (
     <div
@@ -133,7 +133,12 @@ function EventCard({ event }: { event: AgentEvent }) {
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className="text-base flex-shrink-0">{typeIcon}</span>
+          <span
+            className="text-[10px] flex-shrink-0 px-1.5 py-0.5 rounded border font-semibold font-mono"
+            style={{ color: color, borderColor: color + "40", background: color + "10" }}
+          >
+            {typeIcon}
+          </span>
           <div className="min-w-0">
             <div
               className="text-xs font-semibold"
@@ -186,12 +191,12 @@ function EventCard({ event }: { event: AgentEvent }) {
               key={t}
               className="text-xs px-2 py-0.5 rounded-full border font-mono"
               style={{
-                color: "#06b6d4",
-                borderColor: "#06b6d420",
-                background: "#06b6d410",
+                color: "#0891b2",
+                borderColor: "#67e8f9",
+                background: "#ecfeff",
               }}
             >
-              🔧 {t}
+              TOOL {t}
             </span>
           ))}
         </div>
@@ -217,7 +222,7 @@ function MemoryBadge({
         background: color + "10",
       }}
     >
-      {action === "read" ? "📖" : "✏️"} {type}
+      {action === "read" ? "READ" : "WRITE"} {type}
     </span>
   );
 }

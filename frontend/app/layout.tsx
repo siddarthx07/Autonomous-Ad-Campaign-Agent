@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"] });
+const jakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-jakarta",
+});
 
 export const metadata: Metadata = {
   title: "Campaign Agent — Autonomous AI Marketing",
@@ -18,24 +22,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={cn(inter.className, "min-h-screen")} style={{ background: "var(--bg)" }}>
+    <html lang="en" style={{ colorScheme: "light", backgroundColor: "#ffffff" }}>
+      <body
+        className={cn(jakartaSans.className, "min-h-screen")}
+        style={{ backgroundColor: "#ffffff", color: "#0f172a" }}
+      >
         {/* Top Navigation */}
         <nav
-          className="border-b sticky top-0 z-50 backdrop-blur-sm"
-          style={{ borderColor: "var(--border)", background: "rgba(10,10,15,0.9)" }}
+          className="border-b sticky top-0 z-50"
+          style={{
+            borderColor: "var(--border)",
+            background: "rgba(255,255,255,0.95)",
+            backdropFilter: "blur(8px)",
+          }}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-14">
-              <div className="flex items-center gap-6">
-                <Link href="/" className="flex items-center gap-2 group">
+              <div className="flex items-center gap-8">
+                <Link href="/" className="flex items-center gap-2.5">
                   <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white font-bold text-xs"
-                    style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
+                    className="w-7 h-7 rounded-md flex items-center justify-center text-white font-bold text-xs tracking-tight"
+                    style={{ background: "var(--accent)" }}
                   >
                     CA
                   </div>
-                  <span className="font-semibold text-sm" style={{ color: "var(--text)" }}>
+                  <span
+                    className="font-semibold text-sm tracking-tight"
+                    style={{ color: "var(--text)" }}
+                  >
                     Campaign Agent
                   </span>
                 </Link>
@@ -46,21 +60,21 @@ export default function RootLayout({
               </div>
               <div className="flex items-center gap-2">
                 <span
-                  className="text-xs px-2 py-1 rounded-full border font-mono"
+                  className="text-xs px-2.5 py-1 rounded-md border font-mono font-medium"
                   style={{
                     color: "var(--success)",
-                    borderColor: "var(--success)",
-                    background: "rgba(16,185,129,0.1)",
+                    borderColor: "#bbf7d0",
+                    background: "var(--success-light)",
                   }}
                 >
-                  ● LangGraph v0.2
+                  LangGraph v0.2
                 </span>
               </div>
             </div>
           </div>
         </nav>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </main>
       </body>
@@ -78,7 +92,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="text-sm px-3 py-1.5 rounded-md transition-colors hover:text-white"
+      className="text-sm px-3 py-1.5 rounded-md transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)]"
       style={{ color: "var(--text-muted)" }}
     >
       {children}

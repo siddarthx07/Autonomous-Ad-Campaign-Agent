@@ -1,32 +1,74 @@
 @import "tailwindcss";
 
+/* ─── Light-only design system ──────────────────────────────────────────── */
 :root {
-  --bg: #0a0a0f;
-  --surface: #111118;
-  --surface-2: #1a1a26;
-  --border: #2a2a3a;
-  --accent: #6366f1;
-  --accent-glow: rgba(99, 102, 241, 0.3);
-  --text: #e2e2f0;
-  --text-muted: #6b7280;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --cyan: #06b6d4;
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface-2: #f1f5f9;
+  --surface-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --success: #16a34a;
+  --success-light: #f0fdf4;
+  --warning: #ca8a04;
+  --warning-light: #fefce8;
+  --error: #dc2626;
+  --error-light: #fef2f2;
+  --teal: #0891b2;
 }
 
-* {
+/* Override Tailwind v4's automatic dark-mode theme switch */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light;
+
+    --bg: #ffffff;
+    --surface: #f8fafc;
+    --surface-2: #f1f5f9;
+    --surface-hover: #f1f5f9;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --success: #16a34a;
+    --success-light: #f0fdf4;
+    --warning: #ca8a04;
+    --warning-light: #fefce8;
+    --error: #dc2626;
+    --error-light: #fef2f2;
+    --teal: #0891b2;
+  }
+}
+
+/* ─── Base reset ──────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: "Inter", system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+html {
+  color-scheme: light;
+  background-color: #ffffff;
 }
 
-/* Scrollbar */
+body {
+  background-color: #ffffff;
+  color: #0f172a;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -35,30 +77,14 @@ body {
   background: var(--surface);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: var(--border-strong);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4a4a6a;
+  background: var(--text-muted);
 }
 
-/* Glow effects */
-.glow-accent {
-  box-shadow: 0 0 20px var(--accent-glow);
-}
-
-.glow-text {
-  text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
-}
-
-/* Animated gradient border */
-@keyframes border-spin {
-  to {
-    --border-angle: 360deg;
-  }
-}
-
-/* Agent pulse animation */
+/* ─── Animations ──────────────────────────────────────────────────────────── */
 @keyframes agent-pulse {
   0%,
   100% {
@@ -66,8 +92,8 @@ body {
     transform: scale(1);
   }
   50% {
-    opacity: 0.7;
-    transform: scale(1.05);
+    opacity: 0.85;
+    transform: scale(1.03);
   }
 }
 
@@ -75,11 +101,10 @@ body {
   animation: agent-pulse 1.5s ease-in-out infinite;
 }
 
-/* Fade in up */
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -88,10 +113,9 @@ body {
 }
 
 .fade-in-up {
-  animation: fade-in-up 0.3s ease-out forwards;
+  animation: fade-in-up 0.25s ease-out forwards;
 }
 
-/* Streaming cursor */
 @keyframes blink {
   0%,
   100% {
@@ -103,12 +127,12 @@ body {
 }
 
 .cursor-blink::after {
-  content: "▊";
+  content: "|";
   animation: blink 1s step-end infinite;
   color: var(--accent);
+  margin-left: 1px;
 }
 
-/* Score bar */
 .score-bar {
   background: linear-gradient(
     90deg,

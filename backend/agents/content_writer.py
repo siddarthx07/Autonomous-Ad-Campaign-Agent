@@ -53,8 +53,8 @@ IMPORTANT: Respond ONLY with a valid JSON array of ad variant objects. No markdo
 Each object must have:
   "platform": string  — exact platform key provided in the instructions
   "headline": string  — attention-grabbing opening line
-  "body":     string  — main copy body
-  "cta":      string  — call to action
+  "body":     string  — main copy body (MUST include the CTA Link URL inline as plain text so the platform renders it as a clickable link)
+  "cta":      string  — the CTA label followed by the URL, e.g. "Request Access → https://example.com/access"
   "image_prompt": string | null
 
 General rules:
@@ -62,6 +62,8 @@ General rules:
 - Incorporate the messaging pillars naturally
 - No generic phrases like "game-changer", "revolutionary", or "unlock"
 - Be specific: use numbers, outcomes, and concrete benefits
+- ALWAYS embed the CTA Link URL as plain text inside the body copy (social platforms auto-linkify bare URLs)
+- The "cta" field must include the actual URL, not just a text label
 """
 
 
@@ -109,14 +111,41 @@ def content_writer_node(state: CampaignState) -> dict:
     knowledge = retrieve_knowledge(f"ad copywriting {state['campaign_goal']} {' '.join(requested)}")
     sop = retrieve_procedures("ad content creation copywriting")
 
+    usp = state.get("usp") or ""
+    cta_goal = state.get("cta_goal") or "Learn More"
+    product_url = state.get("product_url") or ""
+    cta_link = state.get("cta_link") or ""
+
+    usp_line = f"Unique Selling Proposition (anchor every hook to this): {usp}\n" if usp else ""
+    # Resolve the best URL to embed: prefer explicit cta_link, fall back to product_url
+    link_for_cta = cta_link or product_url
+    cta_link_line = (
+        f"CTA Link — MUST appear as plain text inside the body AND in the cta field: {link_for_cta}\n"
+        if link_for_cta else ""
+    )
+
+    # Inject distilled lessons to guide tone and CTA choices
+    lessons = state.get("campaign_lessons") or {}
+    lessons_block = ""
+    if lessons.get("lesson_summary") and "No past" not in lessons["lesson_summary"]:
+        lessons_block = f"\nLessons From Past Campaigns:\n{lessons['lesson_summary']}\n"
+    if lessons.get("avoid_tones"):
+        lessons_block += f"⚠️  Tones to AVOID (low past scores): {', '.join(lessons['avoid_tones'])}\n"
+    if lessons.get("best_ctas"):
+        lessons_block += f"✅  CTAs that performed well previously: {', '.join(lessons['best_ctas'])}\n"
+
     prompt = (
         f"Product: {state['product_name']}\n"
         f"Description: {state['product_description']}\n"
+        f"{usp_line}"
+        f"{cta_link_line}"
+        f"Primary CTA Outcome: {cta_goal}\n"
         f"Campaign Goal: {state['campaign_goal']}\n"
         f"Target Audience: {state['target_audience']}\n"
         f"Tone: {state['tone']}\n"
         f"Messaging Pillars: {', '.join(plan.get('messaging_pillars', ['Value', 'Trust', 'Action']))}\n"
-        f"Campaign Objective: {plan.get('objective', '')}\n\n"
+        f"Campaign Objective: {plan.get('objective', '')}\n"
+        f"{lessons_block}\n"
         f"Research Insights:\n{findings[:2000]}\n\n"
         f"Copywriting Knowledge:\n{knowledge[:800]}\n\n"
         f"SOPs:\n{sop[:600]}"
@@ -139,7 +168,7 @@ def content_writer_node(state: CampaignState) -> dict:
             "platform": spec["variant_type"],
             "headline": v.get("headline", ""),
             "body": v.get("body", ""),
-            "cta": v.get("cta", "Learn More"),
+            "cta": v.get("cta", cta_goal),  # fall back to user-specified CTA goal
             "image_prompt": v.get("image_prompt"),
         })
 

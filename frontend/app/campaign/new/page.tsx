@@ -12,32 +12,35 @@ const GOALS = [
   "Product Launch",
 ];
 
+const CTA_OPTIONS = [
+  "Book a Demo",
+  "Start Free Trial",
+  "Download Guide",
+  "Get a Quote",
+  "Join Waitlist",
+  "Sign Up Free",
+  "Request Access",
+  "Learn More",
+];
+
 const TONES = ["Professional", "Bold", "Casual", "Inspirational", "Educational"];
 
 const PLATFORMS = [
-  { id: "linkedin", label: "LinkedIn", icon: "💼" },
-  { id: "twitter", label: "X / Twitter", icon: "𝕏" },
+  { id: "linkedin", label: "LinkedIn" },
+  { id: "twitter", label: "X / Twitter" },
 ];
 
 const PUBLISH_MODES = [
-  {
-    id: "now",
-    label: "Publish Now",
-    icon: "⚡",
-    desc: "All posts go live immediately",
-  },
-  {
-    id: "scheduled",
-    label: "Schedule",
-    icon: "🗓️",
-    desc: "Staggered over 3 days",
-  },
-  {
-    id: "both",
-    label: "Now + Schedule",
-    icon: "🚀",
-    desc: "First post live, rest scheduled",
-  },
+  { id: "now",        label: "Publish Now",    desc: "All posts go live immediately" },
+  { id: "scheduled",  label: "Schedule",        desc: "Space posts over time" },
+  { id: "both",       label: "Now + Schedule",  desc: "First post live, rest scheduled" },
+];
+
+const CADENCES = [
+  { id: "daily_1",  label: "Daily · 1 post",   desc: "One post every 24 hours" },
+  { id: "daily_2",  label: "Daily · 2 posts",  desc: "Two posts per day, 12 h apart" },
+  { id: "weekly",   label: "Weekly",            desc: "One post per week" },
+  { id: "custom",   label: "Custom",            desc: "Define your own schedule" },
 ];
 
 export default function NewCampaignPage() {
@@ -48,13 +51,19 @@ export default function NewCampaignPage() {
   const [form, setForm] = useState({
     product_name: "",
     product_description: "",
+    product_url: "",
+    usp: "",
+    cta_goal: "Book a Demo",
+    cta_link: "",
     campaign_goal: "Lead Generation",
     target_audience: "",
     tone: "Professional",
-    budget: "$500/week",
     platforms: ["linkedin", "twitter"],
     publish_mode: "now",
+    schedule_cadence: "daily_1",
+    custom_cadence: "",
   });
+  const [customCta, setCustomCta] = useState("");
 
   function togglePlatform(id: string) {
     setForm((f) => ({
@@ -93,10 +102,13 @@ export default function NewCampaignPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text)" }}>
+        <h1
+          className="text-2xl font-bold mb-2 tracking-tight"
+          style={{ color: "var(--text)" }}
+        >
           New Campaign
         </h1>
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+        <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
           Describe your campaign brief. The agent will handle research, strategy,
           content creation, targeting, and publishing autonomously.
         </p>
@@ -104,14 +116,7 @@ export default function NewCampaignPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Product */}
-        <div
-          className="rounded-2xl border p-5 space-y-4"
-          style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-        >
-          <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            Product
-          </h2>
-
+        <FormSection title="Product">
           <Field label="Product / Brand Name" required>
             <input
               type="text"
@@ -135,43 +140,83 @@ export default function NewCampaignPage() {
               className="input-field resize-none"
             />
           </Field>
-        </div>
 
-        {/* Campaign */}
-        <div
-          className="rounded-2xl border p-5 space-y-4"
-          style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-        >
-          <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            Campaign Settings
-          </h2>
+          <Field label="Landing Page URL">
+            <input
+              type="url"
+              placeholder="https://yourproduct.com — researcher will pull real positioning from here"
+              value={form.product_url}
+              onChange={(e) => setForm((f) => ({ ...f, product_url: e.target.value }))}
+              className="input-field"
+            />
+          </Field>
 
+          <Field label="Unique Selling Proposition (USP)">
+            <input
+              type="text"
+              placeholder="The one thing that makes you different — e.g. 10x faster onboarding with zero code"
+              value={form.usp}
+              onChange={(e) => setForm((f) => ({ ...f, usp: e.target.value }))}
+              className="input-field"
+            />
+            <p className="text-[11px] mt-1" style={{ color: "var(--text-muted)" }}>
+              This anchors every headline and hook the content writer generates.
+            </p>
+          </Field>
+        </FormSection>
+
+        {/* Campaign Settings */}
+        <FormSection title="Campaign Settings">
           <Field label="Goal">
             <div className="flex flex-wrap gap-2">
               {GOALS.map((g) => (
-                <button
+                <ChipButton
                   key={g}
-                  type="button"
+                  active={form.campaign_goal === g}
                   onClick={() => setForm((f) => ({ ...f, campaign_goal: g }))}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
-                  style={
-                    form.campaign_goal === g
-                      ? {
-                          background: "rgba(99,102,241,0.2)",
-                          borderColor: "#6366f1",
-                          color: "#a5b4fc",
-                        }
-                      : {
-                          background: "transparent",
-                          borderColor: "var(--border)",
-                          color: "var(--text-muted)",
-                        }
-                  }
                 >
                   {g}
-                </button>
+                </ChipButton>
               ))}
             </div>
+          </Field>
+
+          <Field label="Call-to-Action Goal">
+            <div className="flex flex-wrap gap-2">
+              {CTA_OPTIONS.map((c) => (
+                <ChipButton
+                  key={c}
+                  active={form.cta_goal === c && !customCta}
+                  onClick={() => {
+                    setForm((f) => ({ ...f, cta_goal: c }));
+                    setCustomCta("");
+                  }}
+                >
+                  {c}
+                </ChipButton>
+              ))}
+            </div>
+            <input
+              type="text"
+              placeholder="Or type a custom CTA..."
+              value={customCta}
+              onChange={(e) => {
+                setCustomCta(e.target.value);
+                if (e.target.value)
+                  setForm((f) => ({ ...f, cta_goal: e.target.value }));
+              }}
+              className="input-field mt-2"
+            />
+            <input
+              type="url"
+              placeholder="CTA Link — e.g. https://yourproduct.com/demo"
+              value={form.cta_link}
+              onChange={(e) => setForm((f) => ({ ...f, cta_link: e.target.value }))}
+              className="input-field mt-2"
+            />
+            <p className="text-[11px] mt-1" style={{ color: "var(--text-muted)" }}>
+              This URL is embedded in the copy so readers know exactly where to go.
+            </p>
           </Field>
 
           <Field label="Target Audience" required>
@@ -187,31 +232,19 @@ export default function NewCampaignPage() {
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Tone">
-              <select
-                value={form.tone}
-                onChange={(e) => setForm((f) => ({ ...f, tone: e.target.value }))}
-                className="input-field"
-              >
-                {TONES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
-            <Field label="Budget">
-              <input
-                type="text"
-                placeholder="e.g. $500/week"
-                value={form.budget}
-                onChange={(e) => setForm((f) => ({ ...f, budget: e.target.value }))}
-                className="input-field"
-              />
-            </Field>
-          </div>
+          <Field label="Tone">
+            <div className="flex flex-wrap gap-2">
+              {TONES.map((t) => (
+                <ChipButton
+                  key={t}
+                  active={form.tone === t}
+                  onClick={() => setForm((f) => ({ ...f, tone: t }))}
+                >
+                  {t}
+                </ChipButton>
+              ))}
+            </div>
+          </Field>
 
           <Field label="Platforms">
             <div className="flex gap-3">
@@ -220,13 +253,13 @@ export default function NewCampaignPage() {
                   key={p.id}
                   type="button"
                   onClick={() => togglePlatform(p.id)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all"
                   style={
                     form.platforms.includes(p.id)
                       ? {
-                          background: "rgba(99,102,241,0.2)",
-                          borderColor: "#6366f1",
-                          color: "#a5b4fc",
+                          background: "var(--accent-light)",
+                          borderColor: "#bfdbfe",
+                          color: "var(--accent)",
                         }
                       : {
                           background: "transparent",
@@ -235,64 +268,129 @@ export default function NewCampaignPage() {
                         }
                   }
                 >
-                  <span>{p.icon}</span>
                   {p.label}
                 </button>
               ))}
             </div>
           </Field>
-        </div>
+        </FormSection>
 
-        {/* Publish Mode */}
-        <div
-          className="rounded-2xl border p-5 space-y-4"
-          style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-        >
-          <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            Publish Mode
-          </h2>
-          <div className="grid grid-cols-3 gap-3">
-            {PUBLISH_MODES.map((m) => {
-              const active = form.publish_mode === m.id;
-              return (
-                <button
-                  key={m.id}
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, publish_mode: m.id }))}
-                  className="flex flex-col items-center gap-1.5 px-3 py-4 rounded-xl border text-center transition-all"
-                  style={
-                    active
-                      ? {
-                          background: "rgba(99,102,241,0.15)",
-                          borderColor: "#6366f1",
-                          color: "#a5b4fc",
-                        }
-                      : {
-                          background: "transparent",
-                          borderColor: "var(--border)",
-                          color: "var(--text-muted)",
-                        }
+        {/* Publishing */}
+        <FormSection title="Publishing">
+          <Field label="When">
+            <div className="grid grid-cols-3 gap-3">
+              {PUBLISH_MODES.map((m) => {
+                const active = form.publish_mode === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, publish_mode: m.id }))}
+                    className="flex flex-col items-start gap-1 px-3 py-3.5 rounded-lg border text-left transition-all"
+                    style={
+                      active
+                        ? {
+                            background: "var(--accent-light)",
+                            borderColor: "#bfdbfe",
+                          }
+                        : {
+                            background: "transparent",
+                            borderColor: "var(--border)",
+                          }
+                    }
+                  >
+                    <span
+                      className="text-xs font-semibold"
+                      style={{ color: active ? "var(--accent)" : "var(--text)" }}
+                    >
+                      {m.label}
+                    </span>
+                    <span
+                      className="text-[11px]"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {m.desc}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
+
+          {form.publish_mode !== "now" && (
+            <Field label="Posting Cadence">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {CADENCES.map((c) => {
+                  const active = form.schedule_cadence === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() =>
+                        setForm((f) => ({ ...f, schedule_cadence: c.id }))
+                      }
+                      className="flex flex-col items-start gap-0.5 px-3 py-3 rounded-lg border text-left transition-all"
+                      style={
+                        active
+                          ? {
+                              background: "#f0fdf4",
+                              borderColor: "#bbf7d0",
+                            }
+                          : {
+                              background: "transparent",
+                              borderColor: "var(--border)",
+                            }
+                      }
+                    >
+                      <span
+                        className="text-xs font-semibold"
+                        style={{ color: active ? "var(--success)" : "var(--text)" }}
+                      >
+                        {c.label}
+                      </span>
+                      <span
+                        className="text-[10px]"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {c.desc}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {form.schedule_cadence === "custom" && (
+                <input
+                  type="text"
+                  placeholder="Describe your schedule — e.g. 3 posts on Mon / Wed / Fri"
+                  value={form.custom_cadence}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, custom_cadence: e.target.value }))
                   }
-                >
-                  <span className="text-xl">{m.icon}</span>
-                  <span className="text-xs font-semibold" style={{ color: active ? "#a5b4fc" : "var(--text)" }}>
-                    {m.label}
-                  </span>
-                  <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                    {m.desc}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+                  className="input-field mt-3"
+                />
+              )}
+
+              <p className="text-[11px] mt-2" style={{ color: "var(--text-muted)" }}>
+                {form.schedule_cadence === "daily_1" &&
+                  "Posts will be spaced 24 hours apart."}
+                {form.schedule_cadence === "daily_2" &&
+                  "Posts will be spaced 12 hours apart (2 per day)."}
+                {form.schedule_cadence === "weekly" &&
+                  "Posts will be spaced 7 days apart."}
+                {form.schedule_cadence === "custom" &&
+                  (form.custom_cadence || "Enter your custom schedule above.")}
+              </p>
+            </Field>
+          )}
+        </FormSection>
 
         {error && (
           <div
-            className="rounded-xl border p-3 text-sm"
+            className="rounded-lg border p-3 text-sm"
             style={{
-              borderColor: "var(--error)",
-              background: "rgba(239,68,68,0.1)",
+              borderColor: "#fecaca",
+              background: "var(--error-light)",
               color: "var(--error)",
             }}
           >
@@ -303,10 +401,12 @@ export default function NewCampaignPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 rounded-xl font-semibold text-white text-sm transition-all hover:scale-[1.01] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="w-full py-3.5 rounded-lg font-semibold text-white text-sm transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-            boxShadow: loading ? "none" : "0 0 30px rgba(99,102,241,0.4)",
+            background: "var(--accent)",
+            boxShadow: loading
+              ? "none"
+              : "0 1px 3px rgba(37,99,235,0.3), 0 4px 12px rgba(37,99,235,0.15)",
           }}
         >
           {loading ? (
@@ -315,7 +415,7 @@ export default function NewCampaignPage() {
               Launching Agents...
             </span>
           ) : (
-            "Launch Campaign Agent 🚀"
+            "Launch Campaign Agent"
           )}
         </button>
       </form>
@@ -323,25 +423,48 @@ export default function NewCampaignPage() {
       <style jsx>{`
         .input-field {
           width: 100%;
-          background: var(--surface-2);
+          background: var(--bg);
           border: 1px solid var(--border);
-          border-radius: 10px;
+          border-radius: 8px;
           padding: 10px 12px;
           color: var(--text);
           font-size: 14px;
+          font-family: inherit;
           outline: none;
-          transition: border-color 0.2s;
+          transition: border-color 0.15s, box-shadow 0.15s;
         }
         .input-field:focus {
           border-color: var(--accent);
+          box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
         .input-field::placeholder {
           color: var(--text-muted);
-        }
-        select.input-field option {
-          background: var(--surface-2);
+          opacity: 0.7;
         }
       `}</style>
+    </div>
+  );
+}
+
+function FormSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="rounded-xl border p-5 space-y-4"
+      style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+    >
+      <h2
+        className="text-sm font-semibold"
+        style={{ color: "var(--text)" }}
+      >
+        {title}
+      </h2>
+      {children}
     </div>
   );
 }
@@ -363,5 +486,38 @@ function Field({
       </label>
       {children}
     </div>
+  );
+}
+
+function ChipButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="px-3 py-1.5 rounded-md text-xs font-medium border transition-all"
+      style={
+        active
+          ? {
+              background: "var(--accent-light)",
+              borderColor: "#bfdbfe",
+              color: "var(--accent)",
+            }
+          : {
+              background: "transparent",
+              borderColor: "var(--border)",
+              color: "var(--text-muted)",
+            }
+      }
+    >
+      {children}
+    </button>
   );
 }

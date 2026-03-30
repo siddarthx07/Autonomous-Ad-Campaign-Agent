@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { MemorySnapshot } from "@/lib/types";
+import { BACKEND_URL } from "@/lib/utils";
 
 interface MemoryExplorerProps {
   sessionId: string;
@@ -21,38 +22,38 @@ const MEMORY_CONFIG: Record<
 > = {
   working: {
     label: "Working Memory",
-    color: "#6366f1",
-    icon: "⚡",
+    color: "#2563eb",
+    icon: "WRK",
     desc: "LangGraph in-flight state — volatile, discarded after run",
   },
   episodic: {
     label: "Episodic Memory",
-    color: "#8b5cf6",
-    icon: "🎞️",
+    color: "#0284c7",
+    icon: "EPI",
     desc: "Past campaign runs stored in ChromaDB — retrieved by similarity",
   },
   semantic: {
     label: "Semantic Memory",
-    color: "#06b6d4",
-    icon: "📚",
+    color: "#0891b2",
+    icon: "SEM",
     desc: "Platform knowledge base — LinkedIn specs, copywriting rules",
   },
   conversation: {
     label: "Conversation History",
-    color: "#10b981",
-    icon: "💬",
+    color: "#16a34a",
+    icon: "CON",
     desc: "User ↔ agent message history persisted to SQLite",
   },
   entity: {
     label: "Entity Memory",
-    color: "#f59e0b",
-    icon: "🏷️",
+    color: "#d97706",
+    icon: "ENT",
     desc: "Extracted entities — brands, personas, products in SQLite",
   },
   procedural: {
     label: "Procedural Memory",
-    color: "#ef4444",
-    icon: "📋",
+    color: "#dc2626",
+    icon: "SOP",
     desc: "SOPs and workflows stored in ChromaDB — injected into prompts",
   },
 };
@@ -64,7 +65,7 @@ export default function MemoryExplorer({ sessionId }: MemoryExplorerProps) {
 
   useEffect(() => {
     const fetchSnapshot = () => {
-      fetch(`/api/memory?session_id=${sessionId}`)
+      fetch(`${BACKEND_URL}/api/memory/${sessionId}`)
         .then((r) => r.json())
         .then(setSnapshot)
         .catch(console.error)
@@ -72,9 +73,6 @@ export default function MemoryExplorer({ sessionId }: MemoryExplorerProps) {
     };
 
     fetchSnapshot();
-    // Poll every 5s while session is active
-    const interval = setInterval(fetchSnapshot, 5000);
-    return () => clearInterval(interval);
   }, [sessionId]);
 
   const cfg = MEMORY_CONFIG[tab];
@@ -102,7 +100,7 @@ export default function MemoryExplorer({ sessionId }: MemoryExplorerProps) {
                   : { borderColor: "transparent", color: "var(--text-muted)" }
               }
             >
-              <span>{c.icon}</span>
+              <span className="text-[10px] font-mono border px-1 py-0.5 rounded" style={{ borderColor: c.color + "40" }}>{c.icon}</span>
               <span className="hidden sm:inline">{c.label}</span>
             </button>
           );
@@ -115,7 +113,7 @@ export default function MemoryExplorer({ sessionId }: MemoryExplorerProps) {
           className="flex items-center gap-2 text-sm font-semibold"
           style={{ color: cfg.color }}
         >
-          <span>{cfg.icon}</span>
+          <span className="text-[10px] font-mono border px-1 py-0.5 rounded" style={{ borderColor: cfg.color + "40" }}>{cfg.icon}</span>
           {cfg.label}
         </div>
         <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
@@ -186,7 +184,7 @@ function WorkingMemView({ data }: { data: Record<string, unknown> }) {
         >
           <span
             className="font-mono font-semibold flex-shrink-0"
-            style={{ color: "#6366f1", minWidth: 140 }}
+            style={{ color: "#2563eb", minWidth: 140 }}
           >
             {k}
           </span>
@@ -212,9 +210,9 @@ function EpisodicView({
         <div
           key={item.id}
           className="rounded-xl border p-3 space-y-2"
-          style={{ borderColor: "#8b5cf640", background: "#8b5cf608" }}
+          style={{ borderColor: "#bae6fd", background: "#f0f9ff" }}
         >
-          <div className="text-xs font-mono" style={{ color: "#8b5cf6" }}>
+          <div className="text-xs font-mono" style={{ color: "#0284c7" }}>
             {item.id}
           </div>
           <div className="text-xs" style={{ color: "var(--text)" }}>
@@ -247,9 +245,9 @@ function SemanticView({ items }: { items: Array<{ id: string; preview: string }>
         <div
           key={item.id}
           className="rounded-xl border p-3"
-          style={{ borderColor: "#06b6d440", background: "#06b6d408" }}
+          style={{ borderColor: "#99f6e4", background: "#f0fdfa" }}
         >
-          <div className="text-xs font-mono mb-1" style={{ color: "#06b6d4" }}>
+          <div className="text-xs font-mono mb-1" style={{ color: "#0891b2" }}>
             {item.id}
           </div>
           <div className="text-xs" style={{ color: "var(--text)" }}>
@@ -279,7 +277,7 @@ function ConversationView({
           style={{
             background:
               msg.role === "user"
-                ? "rgba(99,102,241,0.15)"
+                ? "var(--accent-light)"
                 : "var(--surface-2)",
             color: "var(--text)",
           }}
@@ -287,7 +285,7 @@ function ConversationView({
           <div
             className="text-xs font-semibold mb-1 capitalize"
             style={{
-              color: msg.role === "user" ? "#a5b4fc" : "#10b981",
+              color: msg.role === "user" ? "var(--accent)" : "var(--success)",
             }}
           >
             {msg.role}
@@ -304,21 +302,24 @@ function EntityView({
 }: {
   entities: Record<string, Array<{ name: string; attributes: Record<string, unknown> }>>;
 }) {
-  if (!entities || Object.keys(entities).length === 0)
+  const visibleEntities = Object.fromEntries(
+    Object.entries(entities ?? {}).filter(([type]) => type !== "budget")
+  );
+
+  if (Object.keys(visibleEntities).length === 0)
     return <EmptyState msg="No entities extracted yet." />;
 
   const colors: Record<string, string> = {
-    product: "#10b981",
-    campaign_goal: "#6366f1",
-    target_audience: "#8b5cf6",
-    tone: "#06b6d4",
-    budget: "#f59e0b",
-    platform: "#3b82f6",
+    product: "#16a34a",
+    campaign_goal: "#2563eb",
+    target_audience: "#0284c7",
+    tone: "#0891b2",
+    platform: "#0369a1",
   };
 
   return (
     <div className="space-y-4">
-      {Object.entries(entities).map(([type, items]) => (
+      {Object.entries(visibleEntities).map(([type, items]) => (
         <div key={type}>
           <div
             className="text-xs font-semibold uppercase tracking-wider mb-2"
@@ -359,9 +360,9 @@ function ProceduralView({
         <div
           key={item.id}
           className="rounded-xl border p-3"
-          style={{ borderColor: "#ef444440", background: "#ef444408" }}
+          style={{ borderColor: "#fecaca", background: "#fef2f2" }}
         >
-          <div className="text-xs font-mono mb-1" style={{ color: "#ef4444" }}>
+          <div className="text-xs font-mono mb-1" style={{ color: "#dc2626" }}>
             {item.id}
           </div>
           <div className="text-xs whitespace-pre-wrap" style={{ color: "var(--text)" }}>

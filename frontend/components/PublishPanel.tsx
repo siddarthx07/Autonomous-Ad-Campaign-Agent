@@ -17,7 +17,7 @@ export default function PublishPanel({
         className="rounded-2xl border p-8 text-center"
         style={{ background: "var(--surface)", borderColor: "var(--border)" }}
       >
-        <div className="text-3xl mb-3">⏳</div>
+        <div className="text-xs font-mono mb-3 inline-block px-2 py-1 rounded border" style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}>PENDING</div>
         <div className="text-sm" style={{ color: "var(--text-muted)" }}>
           Campaign not yet published. Waiting for agent to complete.
         </div>
@@ -51,7 +51,7 @@ export default function PublishPanel({
             className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
             style={{ background: isSuccess ? "#10b98120" : "#ef444420" }}
           >
-            {isSuccess ? "🚀" : "⚠️"}
+            {isSuccess ? "OK" : "ERR"}
           </div>
           <div>
             <div className="font-semibold" style={{ color: isSuccess ? "#10b981" : "#ef4444" }}>
@@ -67,19 +67,19 @@ export default function PublishPanel({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <StatusCard
-            icon="💼"
+            icon="LI"
             label="LinkedIn Posts"
             value={linkedinCount > 0 ? `${linkedinCount} published` : "Not posted"}
             success={linkedinCount > 0}
           />
           <StatusCard
-            icon="𝕏"
+            icon="X"
             label="X / Twitter Posts"
             value={twitterCount > 0 ? `${twitterCount} published` : "Not posted"}
             success={twitterCount > 0}
           />
           <StatusCard
-            icon="🔔"
+            icon="ERR"
             label="Errors"
             value={hasErrors ? `${publishResult.errors.length} error(s)` : "None"}
             success={!hasErrors}
@@ -115,7 +115,7 @@ export default function PublishPanel({
           style={{ background: "var(--surface)", borderColor: "#0077b540" }}
         >
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-lg">💼</span>
+            <span className="text-[11px] font-mono px-1.5 py-0.5 rounded border" style={{ borderColor: "#7dd3fc", color: "#0369a1" }}>LI</span>
             <div>
               <div className="text-sm font-semibold" style={{ color: "#0077b5" }}>
                 LinkedIn — Autonomous Campaign Agent
@@ -158,7 +158,7 @@ export default function PublishPanel({
           style={{ background: "var(--surface)", borderColor: "#1d9bf040" }}
         >
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-lg">𝕏</span>
+            <span className="text-[11px] font-mono px-1.5 py-0.5 rounded border" style={{ borderColor: "#7dd3fc", color: "#0284c7" }}>X</span>
             <div>
               <div className="text-sm font-semibold" style={{ color: "#1d9bf0" }}>
                 X / Twitter — @siddarth1289300
@@ -197,12 +197,12 @@ export default function PublishPanel({
       {/* Episodic memory note */}
       <div
         className="rounded-xl border p-3 flex items-center gap-3"
-        style={{ borderColor: "#8b5cf640", background: "#8b5cf608" }}
+        style={{ borderColor: "#bae6fd", background: "#f0f9ff" }}
       >
-        <span className="text-lg">🎞️</span>
+        <span className="text-[11px] font-mono px-1.5 py-0.5 rounded border" style={{ borderColor: "#7dd3fc", color: "#0284c7" }}>LOG</span>
         <div className="text-xs" style={{ color: "var(--text-muted)" }}>
           This campaign has been saved to{" "}
-          <span style={{ color: "#8b5cf6" }}>Episodic Memory</span>. Future
+          <span style={{ color: "#0284c7" }}>Episodic Memory</span>. Future
           campaigns for similar products will reference these results as context.
         </div>
       </div>

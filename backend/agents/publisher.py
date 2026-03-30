@@ -39,15 +39,25 @@ def publisher_node(state: CampaignState) -> dict:
     """LangGraph node: schedules all variants via Buffer (LinkedIn + X) and saves episodic memory."""
 
     variants = state.get("ad_variants", [])
-    publish_mode = state.get("publish_mode", "now")  # "now" | "scheduled" | "both"
+    publish_mode = state.get("publish_mode", "now")        # "now" | "scheduled" | "both"
+    schedule_cadence = state.get("schedule_cadence", "daily_1")
     errors: list[str] = []
     buffer_update_ids: list[str] = []
     linkedin_ids: list[str] = []
     twitter_ids: list[str] = []
 
+    # Map cadence → hours between each post slot
+    _CADENCE_HOURS = {
+        "daily_1": 24,
+        "daily_2": 12,
+        "weekly":  168,
+        "custom":  24,   # default spacing for custom; description is stored for reference
+    }
+    interval_hours = _CADENCE_HOURS.get(schedule_cadence, 24)
+
     for i, variant in enumerate(variants):
         scheduled_at = (
-            datetime.now(timezone.utc) + timedelta(days=i + 1)
+            datetime.now(timezone.utc) + timedelta(hours=interval_hours * (i + 1))
         ).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         text = _build_post_text(variant)

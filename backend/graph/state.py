@@ -38,7 +38,6 @@ class CampaignPlan(TypedDict):
     timeline: str
     platforms: list[str]
     messaging_pillars: list[str]
-    budget_allocation: dict[str, str]
 
 
 class PublishResult(TypedDict):
@@ -54,12 +53,17 @@ class CampaignState(TypedDict):
     session_id: str
     product_name: str
     product_description: str
+    product_url: Optional[str]  # landing page URL for targeted research
+    usp: str                    # unique selling proposition — sharper hook anchor
+    cta_goal: str               # specific CTA e.g. "Book a Demo", "Start Free Trial"
+    cta_link: str               # URL the CTA links to — embedded in copy
     campaign_goal: str          # e.g. "brand awareness", "lead generation"
     target_audience: str        # free-text from user
     tone: str                   # e.g. "professional", "casual", "bold"
-    budget: str                 # e.g. "$500/week"
     platforms: list[str]        # ["linkedin", "twitter"]
     publish_mode: str           # "now" | "scheduled" | "both"
+    schedule_cadence: str       # "daily_1" | "daily_2" | "weekly" | "custom"
+    custom_cadence: str         # free-text description when cadence="custom"
 
     # ── Conversation history (persisted to SQLite) ────────────────
     messages: list[dict[str, str]]   # {"role": "user"|"assistant", "content": "..."}
@@ -69,7 +73,8 @@ class CampaignState(TypedDict):
     orchestrator_notes: str
 
     # ── Memory context injected at runtime ───────────────────────
-    episodic_context: str            # similar past campaigns
+    episodic_context: str            # similar past campaigns (raw)
+    campaign_lessons: dict[str, Any] # distilled lessons: best tones, pillars, CTAs
     semantic_context: str            # platform/ad knowledge
     procedural_context: str          # SOPs loaded for current step
     entities: dict[str, Any]         # extracted entities (brand, persona, etc.)

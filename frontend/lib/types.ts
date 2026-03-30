@@ -28,7 +28,6 @@ export interface CampaignPlan {
   timeline: string;
   platforms: string[];
   messaging_pillars: string[];
-  budget_allocation: Record<string, string>;
 }
 
 export interface PublishResult {
@@ -88,21 +87,24 @@ export interface MemorySnapshot {
 }
 
 export const AGENT_COLORS: Record<string, string> = {
-  orchestrator: "#6366f1",
-  planner: "#8b5cf6",
-  researcher: "#06b6d4",
-  content_writer: "#10b981",
-  targeting: "#f59e0b",
-  critic: "#ef4444",
-  publisher: "#3b82f6",
+  orchestrator: "#2563eb",
+  planner: "#0891b2",
+  researcher: "#0d9488",
+  content_writer: "#16a34a",
+  targeting: "#d97706",
+  critic: "#dc2626",
+  publisher: "#0369a1",
 };
 
-export const AGENT_ICONS: Record<string, string> = {
-  orchestrator: "🧠",
-  planner: "📋",
-  researcher: "🔍",
-  content_writer: "✍️",
-  targeting: "🎯",
-  critic: "⚖️",
-  publisher: "🚀",
+export const AGENT_LABELS: Record<string, string> = {
+  orchestrator: "ORC",
+  planner: "PLN",
+  researcher: "RES",
+  content_writer: "CW",
+  targeting: "TGT",
+  critic: "CRT",
+  publisher: "PUB",
 };
+
+/** @deprecated Use AGENT_LABELS instead — no emojis */
+export const AGENT_ICONS = AGENT_LABELS;

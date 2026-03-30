@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import type { AgentEvent } from "@/lib/types";
-import { AGENT_COLORS, AGENT_ICONS } from "@/lib/types";
+import { AGENT_COLORS, AGENT_LABELS } from "@/lib/types";
 
 const NODES = [
   { id: "orchestrator", label: "Orchestrator" },
@@ -40,7 +40,7 @@ export default function AgentGraph({ activeNode, events }: AgentGraphProps) {
       <div className="flex items-center gap-1 min-w-max">
         {NODES.map((node, i) => {
           const color = AGENT_COLORS[node.id] ?? "#6b7280";
-          const icon = AGENT_ICONS[node.id] ?? "•";
+          const icon = AGENT_LABELS[node.id] ?? "AGN";
           const isActive = activeNode === node.id;
           const isDone = completedNodes.has(node.id) && !isActive;
           const isPending = !completedNodes.has(node.id) && !isActive;
@@ -68,7 +68,9 @@ export default function AgentGraph({ activeNode, events }: AgentGraphProps) {
                 }}
               >
                 <div className="relative">
-                  <span className="text-xl">{icon}</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border" style={{ borderColor: color + "40", color }}>
+                    {icon}
+                  </span>
                   {isActive && (
                     <span
                       className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 animate-pulse"
@@ -119,8 +121,8 @@ export default function AgentGraph({ activeNode, events }: AgentGraphProps) {
                         <span
                           className="text-xs rounded-full px-1.5"
                           style={{
-                            background: "#ef444420",
-                            color: "#ef4444",
+                            background: "#fef2f2",
+                            color: "#dc2626",
                             fontSize: 9,
                           }}
                         >

@@ -69,6 +69,8 @@ def researcher_node(state: CampaignState) -> dict:
     product = state["product_name"]
     goal = state["campaign_goal"]
     audience = state["target_audience"]
+    product_url = state.get("product_url") or ""
+    usp = state.get("usp") or ""
 
     # Run targeted searches
     search_results = []
@@ -78,6 +80,11 @@ def researcher_node(state: CampaignState) -> dict:
         f"{audience} pain points challenges 2024",
         f"{goal} marketing strategy B2B best practices",
     ]
+
+    # If a landing page URL was provided, add a targeted search so Tavily
+    # can pull real positioning language directly from that page.
+    if product_url:
+        queries.append(f"site:{product_url} OR \"{product}\" product features pricing")
 
     for q in queries:
         result = _safe_search(web_search, {"query": q, "max_results": 4})
@@ -92,10 +99,14 @@ def researcher_node(state: CampaignState) -> dict:
 
     combined_research = "\n\n---\n\n".join(search_results)
 
+    usp_context = f"\nUnique Selling Proposition: {usp}" if usp else ""
+    url_context = f"\nLanding Page: {product_url}" if product_url else ""
+
     # Synthesise with LLM
     prompt = (
         f"Campaign Context:\n"
-        f"Product: {product}\nGoal: {goal}\nAudience: {audience}\n\n"
+        f"Product: {product}\nGoal: {goal}\nAudience: {audience}"
+        f"{url_context}{usp_context}\n\n"
         f"Raw Research Results:\n{combined_research[:6000]}"
     )
 
@@ -111,7 +122,7 @@ def researcher_node(state: CampaignState) -> dict:
         "content": findings[:800] + ("..." if len(findings) > 800 else ""),
         "memory_reads": [],
         "tools_used": ["tavily_web_search", "competitive_research"],
-        "searches_run": len(queries) + 1,
+        "searches_run": len(queries) + 1,  # queries may grow if product_url present
     }
 
     return {
