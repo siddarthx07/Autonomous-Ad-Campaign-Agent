@@ -143,6 +143,7 @@ def content_writer_node(state: CampaignState) -> dict:
         f"Campaign Goal: {state['campaign_goal']}\n"
         f"Target Audience: {state['target_audience']}\n"
         f"Tone: {state['tone']}\n"
+        f"Conversation Memory:\n{state.get('conversation_context', '')}\n"
         f"Messaging Pillars: {', '.join(plan.get('messaging_pillars', ['Value', 'Trust', 'Action']))}\n"
         f"Campaign Objective: {plan.get('objective', '')}\n"
         f"{lessons_block}\n"

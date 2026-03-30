@@ -300,7 +300,7 @@ async def get_campaign(session_id: str):
 @app.get("/api/memory/{session_id}")
 async def get_memory(session_id: str):
     """Return all memory stores for the Memory Explorer UI."""
-    from memory.memory_manager import memory_manager
+    from memory.memory_manager import get_conversation_summary, memory_manager
 
     snapshot = memory_manager.get_snapshot(session_id)
 
@@ -312,6 +312,7 @@ async def get_memory(session_id: str):
             "orchestrator_notes": live_state.get("orchestrator_notes", ""),
             "revision_count": live_state.get("revision_count", 0),
             "status": live_state.get("status", "running"),
+            "conversation_summary_preview": get_conversation_summary(session_id)[:300],
             "research_findings_preview": (live_state.get("research_findings", ""))[:300],
         }
 

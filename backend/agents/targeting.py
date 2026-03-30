@@ -64,6 +64,7 @@ def targeting_node(state: CampaignState) -> dict:
         f"Product: {state['product_name']}\n"
         f"Campaign Goal: {state['campaign_goal']}\n"
         f"Target Audience (user-defined): {state['target_audience']}\n"
+        f"Conversation Memory:\n{state.get('conversation_context', '')}\n"
         f"Campaign Objective: {plan.get('objective', '')}\n\n"
         f"Research Audience Insights:\n{findings[:1500]}\n\n"
         f"LinkedIn Targeting Knowledge:\n{knowledge[:600]}"

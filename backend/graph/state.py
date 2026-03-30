@@ -77,6 +77,7 @@ class CampaignState(TypedDict):
     campaign_lessons: dict[str, Any] # distilled lessons: best tones, pillars, CTAs
     semantic_context: str            # platform/ad knowledge
     procedural_context: str          # SOPs loaded for current step
+    conversation_context: str        # rolling summary + recent message tail
     entities: dict[str, Any]         # extracted entities (brand, persona, etc.)
 
     # ── Agent outputs (working memory slots) ─────────────────────

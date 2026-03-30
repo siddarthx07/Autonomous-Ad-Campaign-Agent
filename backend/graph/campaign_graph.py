@@ -110,6 +110,7 @@ def make_initial_state(
         campaign_lessons={},
         semantic_context="",
         procedural_context="",
+        conversation_context="",
         entities={},
         campaign_plan=None,
         research_findings="",

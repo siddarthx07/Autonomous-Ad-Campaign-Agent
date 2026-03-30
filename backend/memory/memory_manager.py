@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sqlite3
 from datetime import datetime
 from typing import Any, Optional
@@ -22,6 +23,7 @@ def _get_conn() -> sqlite3.Connection:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     _ensure_conv_schema(conn)
+    _ensure_conv_summary_schema(conn)
     _ensure_campaigns_schema(conn)
     return conn
 
@@ -40,6 +42,21 @@ def _ensure_conv_schema(conn: sqlite3.Connection) -> None:
     )
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_conv_session ON conversations(session_id)"
+    )
+    conn.commit()
+
+
+def _ensure_conv_summary_schema(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS conversation_summaries (
+            session_id       TEXT PRIMARY KEY,
+            summary          TEXT NOT NULL,
+            last_message_id  INTEGER NOT NULL,
+            message_count    INTEGER NOT NULL,
+            updated_at       TEXT NOT NULL
+        )
+        """
     )
     conn.commit()
 
@@ -210,6 +227,12 @@ def save_message(session_id: str, role: str, content: str) -> None:
     finally:
         conn.close()
 
+    try:
+        update_conversation_summary(session_id)
+    except Exception:
+        # Summary maintenance should never block the main campaign flow.
+        pass
+
 
 def get_conversation_history(session_id: str, last_n: int = 10) -> list[dict[str, str]]:
     conn = _get_conn()
@@ -221,6 +244,277 @@ def get_conversation_history(session_id: str, last_n: int = 10) -> list[dict[str
     finally:
         conn.close()
     return [{"role": r["role"], "content": r["content"]} for r in reversed(rows)]
+
+
+def _clip_text(text: str, max_chars: int) -> str:
+    cleaned = " ".join((text or "").split())
+    if len(cleaned) <= max_chars:
+        return cleaned
+    return cleaned[: max_chars - 3] + "..."
+
+
+def _fallback_conversation_summary(
+    existing_summary: str,
+    new_rows: list[sqlite3.Row],
+) -> str:
+    combined_blocks = [existing_summary] if existing_summary else []
+    combined_blocks.extend(str(row["content"] or "") for row in new_rows)
+
+    lines = [
+        line.strip()
+        for block in combined_blocks
+        for line in block.splitlines()
+        if line.strip()
+    ]
+
+    def _existing_section_items(heading: str) -> list[str]:
+        if not existing_summary:
+            return []
+        match = re.search(
+            rf"{re.escape(heading)}:\n(.*?)(?:\n\n[A-Z][A-Za-z ]+:\n|\Z)",
+            existing_summary,
+            re.DOTALL,
+        )
+        if not match:
+            return []
+        body = match.group(1).strip()
+        if not body or body == "None recorded." or body == "Conversation just started.":
+            return []
+        return [
+            line.lstrip("- ").strip()
+            for line in body.splitlines()
+            if line.strip()
+        ]
+    lower_field_names = {
+        "product",
+        "description",
+        "goal",
+        "audience",
+        "tone",
+        "platforms",
+        "cta goal",
+        "cta link",
+        "landing page",
+        "usp",
+    }
+
+    def _latest_field(label: str) -> str:
+        prefix = f"{label.lower()}:"
+        for line in reversed(lines):
+            if line.lower().startswith(prefix):
+                return line.split(":", 1)[1].strip()
+        return ""
+
+    brief_parts = []
+    product = _latest_field("product")
+    goal = _latest_field("goal")
+    audience = _latest_field("audience")
+    tone = _latest_field("tone")
+    platforms = _latest_field("platforms")
+    cta_goal = _latest_field("cta goal")
+    if product:
+        brief_parts.append(f"Product: {product}")
+    if goal:
+        brief_parts.append(f"Goal: {goal}")
+    if audience:
+        brief_parts.append(f"Audience: {audience}")
+    if tone:
+        brief_parts.append(f"Tone: {tone}")
+    if platforms:
+        brief_parts.append(f"Platforms: {platforms}")
+    if cta_goal:
+        brief_parts.append(f"CTA: {cta_goal}")
+
+    preferences: list[str] = _existing_section_items("Constraints And Preferences")
+    progress: list[str] = _existing_section_items("Progress And Decisions")
+    open_items: list[str] = _existing_section_items("Open Items")
+
+    for row in new_rows[-8:]:
+        role = str(row["role"] or "").lower()
+        content = str(row["content"] or "")
+        for raw_line in content.splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            if ":" in line and line.split(":", 1)[0].strip().lower() in lower_field_names:
+                continue
+            clipped = _clip_text(line, 180)
+            lower = line.lower()
+            if role == "assistant":
+                progress.append(clipped)
+            elif any(word in lower for word in ["avoid", "prefer", "prioritize", "must", "focus", "stronger"]):
+                preferences.append(clipped)
+            elif "?" in line:
+                open_items.append(clipped)
+            else:
+                progress.append(clipped)
+
+    def _dedupe(items: list[str]) -> list[str]:
+        seen: set[str] = set()
+        result: list[str] = []
+        for item in items:
+            key = item.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            result.append(item)
+        return result
+
+    preferences = _dedupe(preferences)
+    progress = _dedupe(progress)
+    open_items = _dedupe(open_items)
+
+    sections = [
+        "Campaign Brief:\n" + ("; ".join(brief_parts) if brief_parts else "Summary not established yet."),
+        "Constraints And Preferences:\n" + ("\n".join(f"- {p}" for p in preferences[:4]) if preferences else "None recorded."),
+        "Progress And Decisions:\n" + ("\n".join(f"- {p}" for p in progress[:4]) if progress else "Conversation just started."),
+        "Open Items:\n" + ("\n".join(f"- {p}" for p in open_items[:3]) if open_items else "None recorded."),
+    ]
+    return "\n\n".join(sections).strip()
+
+
+def _summarize_conversation_increment(
+    existing_summary: str,
+    new_rows: list[sqlite3.Row],
+) -> str:
+    if not new_rows:
+        return existing_summary
+
+    fallback = _fallback_conversation_summary(existing_summary, new_rows)
+    formatted_messages = "\n\n".join(
+        f"{row['role'].upper()}:\n{_clip_text(row['content'], 700)}"
+        for row in new_rows
+    )
+
+    try:
+        from langchain_core.messages import HumanMessage, SystemMessage
+        from langchain_openai import ChatOpenAI
+    except Exception:
+        return fallback
+
+    system_prompt = (
+        "You maintain a rolling conversation-memory summary for a multi-agent "
+        "marketing system. Update the summary using the new messages.\n\n"
+        "Keep it concise and durable. Prefer stable facts and decisions over "
+        "verbatim phrasing. Capture:\n"
+        "- product, audience, goal, CTA, platforms\n"
+        "- constraints, preferences, and notable changes\n"
+        "- progress/status updates from the assistant\n"
+        "- unresolved questions or missing inputs\n\n"
+        "Return plain text only using exactly these headings:\n"
+        "Campaign Brief:\n"
+        "Constraints And Preferences:\n"
+        "Progress And Decisions:\n"
+        "Open Items:\n"
+        "Keep the full summary under 220 words."
+    )
+    human_prompt = (
+        f"Existing summary:\n{existing_summary or 'None yet.'}\n\n"
+        f"New messages to incorporate:\n{formatted_messages}"
+    )
+
+    try:
+        llm = ChatOpenAI(
+            model=os.getenv("CONVERSATION_SUMMARY_MODEL", "gpt-4o-mini"),
+            temperature=0.1,
+        )
+        response = llm.invoke(
+            [SystemMessage(content=system_prompt), HumanMessage(content=human_prompt)]
+        )
+        summary = (response.content or "").strip()
+        return summary or fallback
+    except Exception:
+        return fallback
+
+
+def update_conversation_summary(session_id: str) -> str:
+    conn = _get_conn()
+    try:
+        existing = conn.execute(
+            """
+            SELECT summary, last_message_id, message_count
+            FROM conversation_summaries
+            WHERE session_id = ?
+            """,
+            (session_id,),
+        ).fetchone()
+        last_message_id = int(existing["last_message_id"]) if existing else 0
+        existing_summary = existing["summary"] if existing else ""
+
+        new_rows = conn.execute(
+            """
+            SELECT id, role, content
+            FROM conversations
+            WHERE session_id = ? AND id > ?
+            ORDER BY id ASC
+            """,
+            (session_id, last_message_id),
+        ).fetchall()
+        if not new_rows:
+            return existing_summary
+
+        total_messages = conn.execute(
+            "SELECT COUNT(*) FROM conversations WHERE session_id = ?",
+            (session_id,),
+        ).fetchone()[0]
+    finally:
+        conn.close()
+
+    updated_summary = _summarize_conversation_increment(existing_summary, new_rows)
+    last_seen_id = int(new_rows[-1]["id"])
+    now = datetime.utcnow().isoformat()
+
+    conn = _get_conn()
+    try:
+        conn.execute(
+            """
+            INSERT INTO conversation_summaries
+                (session_id, summary, last_message_id, message_count, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(session_id) DO UPDATE SET
+                summary = excluded.summary,
+                last_message_id = excluded.last_message_id,
+                message_count = excluded.message_count,
+                updated_at = excluded.updated_at
+            """,
+            (session_id, updated_summary, last_seen_id, total_messages, now),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return updated_summary
+
+
+def get_conversation_summary(session_id: str) -> str:
+    conn = _get_conn()
+    try:
+        row = conn.execute(
+            "SELECT summary FROM conversation_summaries WHERE session_id = ?",
+            (session_id,),
+        ).fetchone()
+        return row["summary"] if row else ""
+    finally:
+        conn.close()
+
+
+def get_conversation_context(session_id: str, recent_n: int = 4) -> str:
+    summary = update_conversation_summary(session_id)
+    recent_messages = get_conversation_history(session_id, last_n=recent_n)
+
+    if not summary and not recent_messages:
+        return "No conversation context yet."
+
+    recent_block = "\n".join(
+        f"{msg['role'].upper()}: {_clip_text(msg['content'], 240)}"
+        for msg in recent_messages
+    )
+    blocks: list[str] = []
+    if summary:
+        blocks.append(f"Conversation summary:\n{summary}")
+    if recent_block:
+        blocks.append(f"Recent turns:\n{recent_block}")
+    return "\n\n".join(blocks)
 
 
 # ── Unified load / save for graph nodes ──────────────────────────────────────
@@ -254,6 +548,7 @@ class MemoryManager:
             "episodic_context": episodic.retrieve_similar_episodes(episodic_query),
             "semantic_context": semantic.retrieve_knowledge(semantic_query),
             "procedural_context": procedural.retrieve_procedures(procedural_query),
+            "conversation_context": get_conversation_context(session_id),
             "entities": entity.get_entities_for_session(session_id),
         }
 

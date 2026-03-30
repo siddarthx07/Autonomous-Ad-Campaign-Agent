@@ -54,6 +54,7 @@ def planner_node(state: CampaignState) -> dict:
         f"Goal: {state['campaign_goal']}\n"
         f"Target Audience: {state['target_audience']}\n"
         f"Tone: {state['tone']}\n"
+        f"Conversation Memory:\n{state.get('conversation_context', '')}\n\n"
         f"Platforms: {', '.join(state['platforms'])}\n\n"
         f"Learned Lessons From Past Campaigns (use these to guide strategy):\n{lessons_block}\n\n"
         f"Procedural SOP:\n{sop}\n\n"

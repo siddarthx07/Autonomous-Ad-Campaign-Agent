@@ -86,6 +86,7 @@ def orchestrator_node(state: CampaignState) -> dict:
 
     prompt = (
         f"Campaign Brief:\n{user_brief}\n\n"
+        f"Conversation Memory:\n{mem_ctx['conversation_context']}\n\n"
         f"Lessons From Past Campaigns:\n{lessons['lesson_summary']}\n\n"
         f"Past Similar Campaigns (Episodic Memory):\n{mem_ctx['episodic_context']}\n\n"
         f"Platform Knowledge (Semantic Memory):\n{mem_ctx['semantic_context'][:800]}"
@@ -135,6 +136,7 @@ def orchestrator_node(state: CampaignState) -> dict:
         "campaign_lessons": lessons,
         "semantic_context": mem_ctx["semantic_context"],
         "procedural_context": mem_ctx["procedural_context"],
+        "conversation_context": mem_ctx["conversation_context"],
         "entities": mem_ctx["entities"],
         "messages": state.get("messages", []) + [{"role": "user", "content": user_brief}],
         "events": state.get("events", []) + [event],
