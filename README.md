@@ -2,8 +2,7 @@
 
 A fully autonomous multi-agent system that runs social media ad campaigns end-to-end — from brief to published post — using LangGraph, GPT-4o, and Buffer APIs(Linkedin, X, etc).
 
-Built as a demo for applied AI agent systems work (planning, memory, tool use, LLM orchestration).
-
+a real project you care about and are actively working on
 ---
 
 ## Architecture
