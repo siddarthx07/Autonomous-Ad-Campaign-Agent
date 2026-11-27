@@ -275,3 +275,9 @@ Multi-agent/
    - **Content tab**: 3 ad copy variants + campaign strategy + audience targeting
    - **Memory Explorer**: see all 6 memory systems populated with real data
    - **Publish tab**: LinkedIn post ID and Buffer schedule confirmation
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
